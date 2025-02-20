@@ -67,26 +67,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
 </body>
-<script>
-    function loadPrograms(department) {
-        const programs = {
-            CITCS: ['ACT','BSCS', 'BSIT'],
-            CBA: ['BSA','BSBA - HRDM', 'BSBA - MM', 'BSBA - OM'],
-            CAS: ['ABPolSci', 'ABMassComm', 'BSPsy'],
-            CTE: ['BEED - GEE', 'BEED - ECE','BEED - SE', 'BSED - Science', 'BSED - English', 'BSED - Filipino', 'BSED - Mathematics', 'BSED - MAPEH', 'BSED - Social Science']
-        };
-
-        const programSelect = document.getElementById('program');
-        programSelect.innerHTML = '<option value="">Select Program</option>';
-
-        if (programs[department]) {
-            programs[department].forEach(prog => {
-                const option = document.createElement('option');
-                option.value = prog;
-                option.textContent = prog;
-                programSelect.appendChild(option);
-            });
-        }
-    }
-</script>
 </html>
