@@ -1,0 +1,10 @@
+.position-relative{
+	width: 600px;
+	height: 200px;
+}
+#login{
+	margin: 10px;
+}
+label{
+	padding: 10px 5px;
+}
