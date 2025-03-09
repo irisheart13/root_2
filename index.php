@@ -47,11 +47,9 @@
     body{
     	overflow-y: hidden;
     }
-    .container{
-    	padding: 0;
-    	margin: 0;
+    .container-fluid{
+        padding:0;
     }
-
     /*Nav Bar Design START*/
     .nav-bar{
         position: absolute;
@@ -83,11 +81,19 @@
     /*Nav Bar Design END*/
 
 	/*content design START*/
-	.content{
-		padding: 0px;
-		height: 100vh;
-		background-color: #283618;
-	}
+    .overlay{
+        border-image-source: linear-gradient(hsl(150 100% 0% / 0.8),  
+        hsl(120 100% 0% / 0.8));
+        border-image-slice: fill 1;
+        
+    }
+	.contentSection{
+        background-image: url('img/plmun_rlrc.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+
+        height:100vh;
+    }
 	.php-login{
 		padding: 0px;
 		margin-top: 60px;
@@ -101,12 +107,12 @@
         height: 450px;
         margin: 0;
 
-        background-color: #f5f5f5;
+        background-color: #dce1de; /* Dark color with 40% opacity */
         border-radius: 10px;
     }
     .custom-input{
         border-radius: 15px;
-        color: black;
+        color: white;
     }
     .btn-login{
         width:100%;
@@ -120,44 +126,44 @@
         width: 120px;
         height: 120px;
     }
-
 	/*content design END*/
-
-    @media(min-width: 576px) {
-    
-    }
 </style>
 <body>
-	<div class="container">
+	<div class="container-fluid">
 		<!--Nav Section START-->
-        <div class="row nav-bar">
-	        <div class="col-12 nav_btn">
-	        	<div class="d-flex flex-row-reverse">
-                    <div class="p-2 txt-email">
-                        plmuncomm@plmun.edu.ph
-                    </div>
-                    <div class="p-2">
-                        <img src="img/email.png" alt="email" class="img-email">
+        <section class="navBarSection">
+            <div class="container-fluid">
+                <div class="row nav-bar">
+                    <div class="col-12 nav_btn">
+                        <div class="d-flex flex-row-reverse">
+                            <div class="p-2 txt-email">
+                                plmuncomm@plmun.edu.ph
+                            </div>
+                            <div class="p-2">
+                                <img src="img/email.png" alt="email" class="img-email">
+                            </div>
+                        </div>
                     </div>
                 </div>
-	        </div>
-		<div>
+            </div>
+        </section>
         <!--Nav Section END-->
 
         <!--Content Section START-->
-        
-    	<div class="row content">
-        	<div class="col-12 col-md-6 p-3 php-login d-flex">
-                <?php 
-                    include 'login.php';
-                ?>
-        	</div>
-
-        	<div class="col-12 col-md-6 p-2">
-        		
-        	</div>
-        </div>
-        
+        <section class="contentSection overlay">
+            <div class="container-fluid">
+                <div class="row g-0">
+                    <div class="col-12 col-md-6 p-3 php-login d-flex">
+                        <?php 
+                            include 'login.php';
+                        ?>
+                    </div>
+                    <div class="col-12 col-md-6 p-2">
+                        <!--LIST OF ABSTRACT-->
+                    </div>
+                </div>
+            </div>
+        </section>
         <!--Content Section END-->
 	</div>
 </body>
