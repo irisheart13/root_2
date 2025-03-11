@@ -2,10 +2,19 @@
     session_start(); 
     include '../../../conn.php'; 
 
+    // Check Database Connection
+    if (!$conn) {
+        die("Database connection failed: " . mysqli_connect_error());
+    }
+
     // Check if user is logged in
-    if (!isset($_SESSION['role']) || $_SESSION['role'] != 'student') {
-    header("Location: /Root_1/index.php");
-    exit();
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student') {
+        header("Location: /Root_1/index.php");
+        exit();
+    }
+
+    if (!isset($_SESSION['username'])) {
+        die("Error: User session expired. Please log in again.");
     }
 
     $user_name = htmlspecialchars($_SESSION['username']);
@@ -17,7 +26,7 @@
         $co_author_2 = htmlspecialchars($_POST["co_author_2"]);
         $others = htmlspecialchars($_POST["others"]);
 
-        // Fetch user's department and program from tbl_user table
+        // Fetch user's department and program
         $user_query = $conn->prepare("SELECT department, program FROM tbl_user WHERE username = ?");
         $user_query->bind_param("s", $user_name);
         $user_query->execute();
@@ -27,77 +36,96 @@
             $user_query->bind_result($department, $program);
             $user_query->fetch();
         } else {
-            exit();
+            exit("Error: User details not found.");
         }
         $user_query->close();
-
     }
+
     // Handle file upload
     $target_dir = "uploads/";
     if (!is_dir($target_dir)) {
         mkdir($target_dir, 0777, true);
     }
 
-    $allowed_ext = "pdf"; // Allowed file type
-
-    // Function to handle file upload
     function uploadFile($file, $target_dir, $prefix) {
-        if (isset($_FILES[$file]) && $_FILES[$file]["error"] === 0) {
-            $file_ext = strtolower(pathinfo($_FILES[$file]["name"], PATHINFO_EXTENSION));
-
-            // Allow only PDF files
-            if ($file_ext !== "pdf") {
-                echo "<script>alert('The system only accepts PDF Files!'); window.location.href='index.php';</script>";
-                exit();
-            }
-
-            // Generate a unique filename
-            $unique_name = uniqid($prefix, true) . '.' . $file_ext;
-            $target_file = $target_dir . $unique_name;
-
-            // Move uploaded file to destination
-            if (move_uploaded_file($_FILES[$file]["tmp_name"], $target_file)) {
-                return $target_file;
-            } else {
-                return false;
-            }
+        if (!isset($_FILES[$file]) || $_FILES[$file]["error"] !== 0) {
+            echo "<script>alert('File upload error! Please try again.'); window.location.href='index.php';</script>";
+            exit();
         }
-        return false;
+
+        $file_ext = strtolower(pathinfo($_FILES[$file]["name"], PATHINFO_EXTENSION));
+
+        if ($file_ext !== "pdf") {
+            echo "<script>alert('The system only accepts PDF Files!'); window.location.href='index.php';</script>";
+            exit();
+        }
+
+        $unique_name = uniqid($prefix, true) . '.' . $file_ext;
+        $target_file = $target_dir . $unique_name;
+
+        if (!move_uploaded_file($_FILES[$file]["tmp_name"], $target_file)) {
+            echo "<script>alert('File upload failed. Try again.'); window.location.href='index.php';</script>";
+            exit();
+        }
+
+        return $target_file;
     }
 
-    // Upload both research paper and abstract
-    $file_research_paper = uploadFile("file_research_paper", $target_dir, "research_");
-    $file_abstract = uploadFile("file_abstract", $target_dir, "abstract_");
+    // Handle Research Paper Upload or Retain Existing File
+    $file_research_paper = !empty($_FILES['file_research_paper']['name']) 
+        ? uploadFile("file_research_paper", $target_dir, "research_") 
+        : (isset($_POST['existing_research_paper']) ? $_POST['existing_research_paper'] : null);
 
-    // Proceed only if both files are successfully uploaded
+    // Handle Abstract Upload or Retain Existing File
+    $file_abstract = !empty($_FILES['file_abstract']['name']) 
+        ? uploadFile("file_abstract", $target_dir, "abstract_") 
+        : (isset($_POST['existing_abstract']) ? $_POST['existing_abstract'] : null);
+
     if ($file_research_paper && $file_abstract) {
-        $stmt = $conn->prepare("INSERT INTO tbl_fileUpload (username, department, program, title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, date_of_submission) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-        $stmt->bind_param("ssssssssss", $user_name, $department, $program, $title, $main_author, $co_author_1, $co_author_2, $others, $file_research_paper, $file_abstract);
-
-        if ($stmt->execute()) {
-            header("Location: index.php?success=1");
-            exit();
+        if (!empty($_POST['submission_id'])) {
+            $submission_id = htmlspecialchars($_POST['submission_id']);
+            $stmt = $conn->prepare("UPDATE tbl_fileUpload 
+                        SET title = ?, main_author = ?, co_author_1 = ?, co_author_2 = ?, others = ?, 
+                            file_research_paper = ?, file_abstract = ? 
+                        WHERE submission_id = ?");
+            $stmt->bind_param("ssssssss", $title, $main_author, $co_author_1, $co_author_2, $others, 
+                              $file_research_paper, $file_abstract, $submission_id);
         } else {
-            echo "Error: " . $stmt->error;
+            // New Submission
+            $submission_id = uniqid('SUB-', true);
+            $stmt = $conn->prepare("INSERT INTO tbl_fileUpload 
+            (submission_id, username, department, program, title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, date_of_submission) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+
+            $stmt->bind_param("sssssssssss", $submission_id, $user_name, $department, $program, $title, 
+                              $main_author, $co_author_1, $co_author_2, $others, 
+                              $file_research_paper, $file_abstract);
         }
+
+        // Execute the appropriate query
+        if (!$stmt->execute()) {
+            echo "<script>alert('Error updating record: " . htmlspecialchars($stmt->error) . "');</script>";
+        } else {
+            echo "<script>alert('Record successfully updated.'); window.location.href='index.php';</script>";
+        }
+
         $stmt->close();
     }
 
     // Pagination
-    $limit = 5; // Max records per page
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $limit = 5;
+    $page = isset($_GET['page']) && (int)$_GET['page'] > 0 ? (int)$_GET['page'] : 1;
     $offset = ($page - 1) * $limit;
 
     // Fetch user data with pagination
-    $tbl_fileUpload_query = $conn->prepare("SELECT id, date_of_submission, title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, notification, DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, DATE_FORMAT(sched_final, '%b %d, %Y') AS formatted_sched_final, research_status
+    $tbl_fileUpload_query = $conn->prepare("SELECT id, submission_id, date_of_submission, title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, notification, DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, DATE_FORMAT(sched_final, '%b %d, %Y') AS formatted_sched_final, research_status
                                         FROM tbl_fileUpload WHERE username = ? ORDER BY date_of_submission DESC LIMIT ? OFFSET ?");
     $tbl_fileUpload_query->bind_param("sii", $user_name, $limit, $offset);
     $tbl_fileUpload_query->execute();
     $tbl_fileUpload_query->store_result();
-    $tbl_fileUpload_query->bind_result($id, $date_of_submission, $title, $main_author, $co_author_1, $co_author_2, $others, $file_research_paper, $file_abstract, $notification, $sched_proposal, $sched_final, $research_status);
+    $tbl_fileUpload_query->bind_result($id, $submission_id, $date_of_submission, $title, $main_author, $co_author_1, $co_author_2, $others, $file_research_paper, $file_abstract, $notification, $sched_proposal, $sched_final, $research_status);
 
-    // Get total records for pagination
+    // Total records for pagination
     $total_query = $conn->prepare("SELECT COUNT(*) FROM tbl_fileUpload WHERE username = ?");
     $total_query->bind_param("s", $user_name);
     $total_query->execute();
@@ -107,6 +135,8 @@
 
     $total_pages = ceil($total_rows / $limit);
 ?>
+
+
 
 
 
@@ -317,12 +347,17 @@
         <!--dataEntry_uploadForm Section START-->
         <div class="dataEntry_uploadForm">
             <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="submission_id" id="submission_id" 
+                     value="<?php echo isset($submission_id) ? htmlspecialchars($submission_id) : ''; ?>">
+                <input type="hidden" name="existing_research_paper" id="existing_research_paper" value="<?php echo isset($file_research_paper) ? htmlspecialchars($file_research_paper) : ''; ?>">
+                <input type="hidden" name="existing_abstract" id="existing_abstract" value="<?php echo isset($file_abstract) ? htmlspecialchars($file_abstract) : ''; ?>">
+
                 <div class="row input_box">
                     <div class="col-12 col-sm-2 p-1"> <!--Research title START-->
                         <label>Research Title:</label>
                     </div>
                     <div class="col-12 col-sm-10 p-1">
-                        <input type="text" name="title" placeholder="TITLE" class="form-control text-center custom-input" required>
+                        <input type="text" name="title" id="title" placeholder="TITLE" class="form-control text-center custom-input" value="<?php echo isset($title) ? htmlspecialchars($title) : ''; ?>" required>
                     </div><!--Research title END-->
 
                     <div class="col-12 col-sm-6 col-md-4"> <!--Main Author START-->
@@ -331,7 +366,7 @@
                                 <label>Main Author:</label>
                             </div>
                             <div class="col-12 col-sm-7 p-1">
-                                <input type="text" name="main_author" placeholder="Name" class="form-control text-center custom-input" required>
+                                <input type="text" name="main_author" id="main_author"placeholder="Name" class="form-control text-center custom-input"  value="<?php echo isset($main_author) ? htmlspecialchars($main_author) : ''; ?>"required>
                             </div>
                         </div>
                     </div><!--Main Author END-->
@@ -341,7 +376,7 @@
                                 <label>Co-author:</label>
                             </div>
                             <div class="col-12 col-sm-8 p-1">
-                                <input type="text" name="co_author_1" placeholder="Name" class="form-control text-center custom-input">
+                                <input type="text" name="co_author_1" id="co_author_1" placeholder="Name" class="form-control text-center custom-input" value="<?php echo isset($co_author_1) ? htmlspecialchars($co_author_1) : ''; ?>" >
                             </div>
                         </div>
                     </div><!--Co-author_1 END-->
@@ -351,20 +386,20 @@
                                 <label>Co-author:</label>
                             </div>
                             <div class="col-12 col-sm-10 col-md-8 p-1">
-                                <input type="text" name="co_author_2" placeholder="Name" class="form-control text-center custom-input">
+                                <input type="text" name="co_author_2" id="co_author_2" placeholder="Name" class="form-control text-center custom-input" value="<?php echo isset($co_author_2) ? htmlspecialchars($co_author_2) : ''; ?>">
                             </div>
                         </div>
                     </div><!--Co-author_2 END-->
-                    <div class="col-12"> <!--Co-author_2 START-->
+                    <div class="col-12"> <!--others START-->
                         <div class="row">
                             <div class="col-12 col-sm-1 p-1">
                                 <label>More Authors:</label>
                             </div>
                             <div class="col-12 col-sm-10  offset-sm-1 p-1">
-                                <textarea type="text" name="others" placeholder="Type here..." class="form-control custom-input"></textarea>
+                                <textarea type="text" name="others" id="others" placeholder="Type here..." class="form-control custom-input" value="<?php echo isset($others) ? htmlspecialchars($others) : ''; ?>"></textarea>
                             </div>
                         </div>
-                    </div><!--Co-author_2 END-->
+                    </div><!--Others END-->
 
                     <div class="col-12 col-md-6">
                         <div class="row">
@@ -373,7 +408,8 @@
                                     <label>Attach your research paper here:</label>
                                 </div>
                                 <div class="col-12 col-md-7 p-1">
-                                    <input type="file" name="file_research_paper" id="file_research_paper" class="form-control custom-input" required>
+                                    <input type="file" name="file_research_paper" id="file_research_paper" class="form-control custom-input" <?php echo isset($_POST['submission_id']) ? '' : 'required'; ?> required>
+                                    <small id="current_research_paper"></small>
                                 </div>
                             </div><!--File Attachment (Research Paper) END-->
                             <div class="row"> <!--File Attachment (Abstract) START-->
@@ -381,7 +417,8 @@
                                     <label>Attach your abstract here:</label>
                                 </div>
                                 <div class="col-12 col-md-8 p-1">
-                                    <input type="file" name="file_abstract" id="file_abstract" class="form-control custom-input" required>
+                                    <input type="file" name="file_abstract" id="file_abstract" class="form-control custom-input" <?php echo isset($_POST['submission_id']) ? '' : 'required'; ?> required>
+                                    <small id="current_abstract"></small>
                                 </div>
                             </div><!--File Attachment (Abstract) END-->
                             <div class="col-5 col-md-2 p-1">
@@ -434,7 +471,19 @@
                                     echo "<td>" . htmlspecialchars($sched_proposal) . "</td>";
                                     echo "<td>" . htmlspecialchars($sched_final) . "</td>";
                                     echo "<td>" . htmlspecialchars($research_status) . "</td>";
-                                    echo "<td><button href='edit_submission.php?id=" . $id . "' class='btn-resubmit'>Edit</button></td>";
+                                    echo "<td><button 
+                                            class='btn-resubmit' 
+                                            data-id='" . $id . "' 
+                                            data-title='" . htmlspecialchars($title) . "'
+                                            data-main_author='" . htmlspecialchars($main_author) . "'
+                                             data-co_author_1='" . htmlspecialchars($co_author_1) . "'
+                                            data-co_author_2='" . htmlspecialchars($co_author_2) . "'
+                                            data-others='" . htmlspecialchars($others) . "'
+                                            data-research_paper='" . htmlspecialchars($file_research_paper) . "'
+                                            data-abstract='" . htmlspecialchars($file_abstract) . "'
+                                        >
+                                        Edit
+                                        </button></td>";
                                     echo "</tr>";
                                 }
                             } else {
@@ -481,5 +530,43 @@
         <!--Uploaded File Dashboard START-->
 
     </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const editButtons = document.querySelectorAll('.btn-resubmit');
+
+        editButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const submissionId = this.getAttribute('data-id');
+                document.getElementById('submission_id').value = submissionId;
+
+                document.getElementById('title').value = this.getAttribute('data-title');
+                document.getElementById('main_author').value = this.getAttribute('data-main_author');
+                document.getElementById('co_author_1').value = this.getAttribute('data-co_author_1');
+                document.getElementById('co_author_2').value = this.getAttribute('data-co_author_2');
+                document.getElementById('others').value = this.getAttribute('data-others');
+
+                const researchPaper = this.getAttribute('data-research_paper');
+                const abstractFile = this.getAttribute('data-abstract');
+
+                document.getElementById('existing_research_paper').value = researchPaper;
+                document.getElementById('existing_abstract').value = abstractFile;
+
+                document.getElementById('current_research_paper').innerHTML = 
+                    `Current: <a href="/uploads/${researchPaper}" target="_blank">${researchPaper}</a>`;
+
+                document.getElementById('current_abstract').innerHTML = 
+                    `Current: <a href="/uploads/${abstractFile}" target="_blank">${abstractFile}</a>`;
+
+                document.getElementById('file_research_paper').required = false;
+                document.getElementById('file_abstract').required = false;
+
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    });
+</script>
+
 </body>
 </html>
