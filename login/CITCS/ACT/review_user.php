@@ -1,29 +1,34 @@
 <?php
     session_start();
-    include 'conn.php';
+    include '../../../conn.php';
 
     $user_name = htmlspecialchars($_SESSION['username']);
 
-    $file_path = '';
-
-    if (isset($_GET['id']) && isset($_GET['type'])) {
-        $id = intval($_GET['id']);
-        $type = $_GET['type'] === 'abstract' ? 'file_abstract' : 'file_research_paper';
-
-        $department = $_SESSION['department']; 
-        $program = $_SESSION['program'];
-
-        $stmt = $conn->prepare("SELECT $type FROM tbl_fileUpload WHERE id = ?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $stmt->store_result();
-        $stmt->bind_result($file_name);
-
-        if ($stmt->fetch() && !empty($file_name)) {
-            $file_path = "/Root_1/login/$department/$program/$file_name";
-        }
-        $stmt->close();
+    if (!isset($_GET['id']) || !isset($_GET['type'])) {
+        die("Invalid request.");
     }
+    
+    $id = intval($_GET['id']);
+    $type = $_GET['type']; // either "research" or "abstract"
+    
+    // Fetch file path from database
+    $query = $conn->prepare("SELECT file_research_paper, file_abstract FROM tbl_fileUpload WHERE id = ?");
+    $query->bind_param("i", $id);
+    $query->execute();
+    $query->store_result();
+    $query->bind_result($file_research_paper, $file_abstract);
+    $query->fetch();
+    $query->close();
+    
+    // Identify which file to display
+    $file_name = ($type === "research") ? $file_research_paper : $file_abstract;
+
+    if (!$file_name) {
+        die("File not found.");
+    }
+
+    // Construct full file path
+    $file_path = "uploads/" . $file_name;
 ?>
 
 
@@ -197,7 +202,7 @@
             <div class=" container-fluid row">
                 <div class="col-12 col-md-9">
                     <!-- PDF VIEWER USING IFRAME -->
-                     <iframe id="pdfViewer" src="<?php echo htmlspecialchars($file_path); ?>" width="100%" style="border: none;"></iframe>
+                     <iframe id="pdfViewer" src="<?= htmlspecialchars($file_path) ?>" width="100%" style="border: none;"></iframe>
                 </div>
                 <div class="col-12 col-md-3">
                     <div class="row com_sec">

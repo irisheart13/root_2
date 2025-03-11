@@ -1,27 +1,32 @@
--- MariaDB dump 10.19  Distrib 10.4.32-MariaDB, for Win64 (AMD64)
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
 --
--- Host: localhost    Database: college_directory
--- ------------------------------------------------------
--- Server version	10.4.32-MariaDB
+-- Host: 127.0.0.1
+-- Generation Time: Mar 11, 2025 at 05:48 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Database: `college_directory`
+--
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `tbl_fileupload`
 --
 
-DROP TABLE IF EXISTS `tbl_fileupload`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tbl_fileupload` (
   `id` int(50) NOT NULL,
   `date_of_submission` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -38,56 +43,71 @@ CREATE TABLE `tbl_fileupload` (
   `notification` varchar(50) DEFAULT NULL,
   `sched_proposal` date DEFAULT NULL,
   `sched_final` date DEFAULT NULL,
-  `research_status` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `research_status` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `tbl_fileupload`
 --
 
-LOCK TABLES `tbl_fileupload` WRITE;
-/*!40000 ALTER TABLE `tbl_fileupload` DISABLE KEYS */;
-INSERT INTO `tbl_fileupload` VALUES (0,'2025-03-08 14:17:59','ACT','CITCS','ACT','asjdlkjasdlkjf','asdfkjasldkfalkjsd','','','','uploads/research_67cc5197b70f94.82433580.pdf','uploads/abstract_67cc5197b750e3.61269075.pdf','Scheduled for Research Proposal Presentation','2025-03-14',NULL,NULL);
-/*!40000 ALTER TABLE `tbl_fileupload` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `tbl_fileupload` (`id`, `date_of_submission`, `username`, `department`, `program`, `title`, `main_author`, `co_author_1`, `co_author_2`, `others`, `file_research_paper`, `file_abstract`, `notification`, `sched_proposal`, `sched_final`, `research_status`) VALUES
+(4, '2025-03-11 16:31:23', 'ACT', 'CITCS', 'ACT', 'Final Try - EDIT TRY ', 'Iris Heart Prado', 'undefined', 'undefined', '', '[Student ID] Prado, Iris Heart A.pdf', 'Abstract_CITCS-EXAM-SCHEDULE-MIDTERM-2ND-SEM-2024-2025.pdf', NULL, NULL, NULL, NULL),
+(5, '2025-03-11 16:32:36', 'ACT', 'CITCS', 'ACT', 'First Try WORKED! EDIT 2nd Try', 'Iris Heart Prado', 'undefined', 'undefined', '', 'PradoIrisHeartA_WeeklyJournal_Week3.pdf', 'Abstract_[Proof of Matriculation] Prado, Iris Heart A.pdf', NULL, NULL, NULL, NULL);
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `tbl_user`
 --
 
-DROP TABLE IF EXISTS `tbl_user`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tbl_user` (
   `id` int(50) NOT NULL,
   `username` varchar(50) NOT NULL,
   `role` varchar(50) NOT NULL,
   `pin` varchar(50) NOT NULL,
   `department` varchar(150) NOT NULL,
-  `program` varchar(150) NOT NULL,
-  PRIMARY KEY (`id`)
+  `program` varchar(150) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `tbl_user`
 --
 
-LOCK TABLES `tbl_user` WRITE;
-/*!40000 ALTER TABLE `tbl_user` DISABLE KEYS */;
-INSERT INTO `tbl_user` VALUES (1,'ACT','student','1234','CITCS','ACT'),(2,'BSCS','student','1234','CITCS','BSCS'),(3,'BSIT','student','1234','CITCS','BSIT'),(4,'admin_BSIT','admin','0000','CITCS','BSIT'),(5,'admin_BSCS','admin','0000','CITCS','BSCS'),(6,'admin_ACT','admin','0000','CITCS','ACT');
-/*!40000 ALTER TABLE `tbl_user` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+INSERT INTO `tbl_user` (`id`, `username`, `role`, `pin`, `department`, `program`) VALUES
+(1, 'ACT', 'student', '1234', 'CITCS', 'ACT'),
+(2, 'BSCS', 'student', '1234', 'CITCS', 'BSCS'),
+(3, 'BSIT', 'student', '1234', 'CITCS', 'BSIT'),
+(4, 'admin_BSIT', 'admin', '0000', 'CITCS', 'BSIT'),
+(5, 'admin_BSCS', 'admin', '0000', 'CITCS', 'BSCS'),
+(6, 'admin_ACT', 'admin', '0000', 'CITCS', 'ACT');
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `tbl_fileupload`
+--
+ALTER TABLE `tbl_fileupload`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `tbl_user`
+--
+ALTER TABLE `tbl_user`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `tbl_fileupload`
+--
+ALTER TABLE `tbl_fileupload`
+  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+COMMIT;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2025-03-08 23:07:22

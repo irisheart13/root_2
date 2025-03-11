@@ -2,115 +2,13 @@
     session_start(); 
     include '../../../conn.php'; 
 
-    // Check Database Connection
-    if (!$conn) {
-        die("Database connection failed: " . mysqli_connect_error());
-    }
-
     // Check if user is logged in
     if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student') {
         header("Location: /Root_1/index.php");
         exit();
     }
 
-    if (!isset($_SESSION['username'])) {
-        die("Error: User session expired. Please log in again.");
-    }
-
     $user_name = htmlspecialchars($_SESSION['username']);
-
-    if (isset($_POST["submit"])) {
-        $title = htmlspecialchars($_POST["title"]);
-        $main_author = htmlspecialchars($_POST["main_author"]);
-        $co_author_1 = htmlspecialchars($_POST["co_author_1"]);
-        $co_author_2 = htmlspecialchars($_POST["co_author_2"]);
-        $others = htmlspecialchars($_POST["others"]);
-
-        // Fetch user's department and program
-        $user_query = $conn->prepare("SELECT department, program FROM tbl_user WHERE username = ?");
-        $user_query->bind_param("s", $user_name);
-        $user_query->execute();
-        $user_query->store_result();
-
-        if ($user_query->num_rows > 0) {
-            $user_query->bind_result($department, $program);
-            $user_query->fetch();
-        } else {
-            exit("Error: User details not found.");
-        }
-        $user_query->close();
-    }
-
-    // Handle file upload
-    $target_dir = "uploads/";
-    if (!is_dir($target_dir)) {
-        mkdir($target_dir, 0777, true);
-    }
-
-    function uploadFile($file, $target_dir, $prefix) {
-        if (!isset($_FILES[$file]) || $_FILES[$file]["error"] !== 0) {
-            echo "<script>alert('File upload error! Please try again.'); window.location.href='index.php';</script>";
-            exit();
-        }
-
-        $file_ext = strtolower(pathinfo($_FILES[$file]["name"], PATHINFO_EXTENSION));
-
-        if ($file_ext !== "pdf") {
-            echo "<script>alert('The system only accepts PDF Files!'); window.location.href='index.php';</script>";
-            exit();
-        }
-
-        $unique_name = uniqid($prefix, true) . '.' . $file_ext;
-        $target_file = $target_dir . $unique_name;
-
-        if (!move_uploaded_file($_FILES[$file]["tmp_name"], $target_file)) {
-            echo "<script>alert('File upload failed. Try again.'); window.location.href='index.php';</script>";
-            exit();
-        }
-
-        return $target_file;
-    }
-
-    // Handle Research Paper Upload or Retain Existing File
-    $file_research_paper = !empty($_FILES['file_research_paper']['name']) 
-        ? uploadFile("file_research_paper", $target_dir, "research_") 
-        : (isset($_POST['existing_research_paper']) ? $_POST['existing_research_paper'] : null);
-
-    // Handle Abstract Upload or Retain Existing File
-    $file_abstract = !empty($_FILES['file_abstract']['name']) 
-        ? uploadFile("file_abstract", $target_dir, "abstract_") 
-        : (isset($_POST['existing_abstract']) ? $_POST['existing_abstract'] : null);
-
-    if ($file_research_paper && $file_abstract) {
-        if (!empty($_POST['submission_id'])) {
-            $submission_id = htmlspecialchars($_POST['submission_id']);
-            $stmt = $conn->prepare("UPDATE tbl_fileUpload 
-                        SET title = ?, main_author = ?, co_author_1 = ?, co_author_2 = ?, others = ?, 
-                            file_research_paper = ?, file_abstract = ? 
-                        WHERE submission_id = ?");
-            $stmt->bind_param("ssssssss", $title, $main_author, $co_author_1, $co_author_2, $others, 
-                              $file_research_paper, $file_abstract, $submission_id);
-        } else {
-            // New Submission
-            $submission_id = uniqid('SUB-', true);
-            $stmt = $conn->prepare("INSERT INTO tbl_fileUpload 
-            (submission_id, username, department, program, title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, date_of_submission) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-
-            $stmt->bind_param("sssssssssss", $submission_id, $user_name, $department, $program, $title, 
-                              $main_author, $co_author_1, $co_author_2, $others, 
-                              $file_research_paper, $file_abstract);
-        }
-
-        // Execute the appropriate query
-        if (!$stmt->execute()) {
-            echo "<script>alert('Error updating record: " . htmlspecialchars($stmt->error) . "');</script>";
-        } else {
-            echo "<script>alert('Record successfully updated.'); window.location.href='index.php';</script>";
-        }
-
-        $stmt->close();
-    }
 
     // Pagination
     $limit = 5;
@@ -118,12 +16,12 @@
     $offset = ($page - 1) * $limit;
 
     // Fetch user data with pagination
-    $tbl_fileUpload_query = $conn->prepare("SELECT id, submission_id, date_of_submission, title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, notification, DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, DATE_FORMAT(sched_final, '%b %d, %Y') AS formatted_sched_final, research_status
+    $tbl_fileUpload_query = $conn->prepare("SELECT id, date_of_submission, title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, notification, DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, DATE_FORMAT(sched_final, '%b %d, %Y') AS formatted_sched_final, research_status
                                         FROM tbl_fileUpload WHERE username = ? ORDER BY date_of_submission DESC LIMIT ? OFFSET ?");
     $tbl_fileUpload_query->bind_param("sii", $user_name, $limit, $offset);
     $tbl_fileUpload_query->execute();
     $tbl_fileUpload_query->store_result();
-    $tbl_fileUpload_query->bind_result($id, $submission_id, $date_of_submission, $title, $main_author, $co_author_1, $co_author_2, $others, $file_research_paper, $file_abstract, $notification, $sched_proposal, $sched_final, $research_status);
+    $tbl_fileUpload_query->bind_result($id, $date_of_submission, $title, $main_author, $co_author_1, $co_author_2, $others, $file_research_paper, $file_abstract, $notification, $sched_proposal, $sched_final, $research_status);
 
     // Total records for pagination
     $total_query = $conn->prepare("SELECT COUNT(*) FROM tbl_fileUpload WHERE username = ?");
@@ -135,9 +33,6 @@
 
     $total_pages = ceil($total_rows / $limit);
 ?>
-
-
-
 
 
 <!DOCTYPE html>
@@ -326,8 +221,6 @@
         }
     }
 
-
-
 </style>
 <body>
     <div class="container-fluid">
@@ -346,12 +239,7 @@
 
         <!--dataEntry_uploadForm Section START-->
         <div class="dataEntry_uploadForm">
-            <form method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="submission_id" id="submission_id" 
-                     value="<?php echo isset($submission_id) ? htmlspecialchars($submission_id) : ''; ?>">
-                <input type="hidden" name="existing_research_paper" id="existing_research_paper" value="<?php echo isset($file_research_paper) ? htmlspecialchars($file_research_paper) : ''; ?>">
-                <input type="hidden" name="existing_abstract" id="existing_abstract" value="<?php echo isset($file_abstract) ? htmlspecialchars($file_abstract) : ''; ?>">
-
+            <form method="POST" enctype="multipart/form-data" action="submit.php">
                 <div class="row input_box">
                     <div class="col-12 col-sm-2 p-1"> <!--Research title START-->
                         <label>Research Title:</label>
@@ -453,45 +341,48 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
-                            // Fetch the results and display them as table rows
-                            if ($tbl_fileUpload_query->num_rows > 0) {
-                                while ($tbl_fileUpload_query->fetch()) {
-                                    echo "<tr>";
-                                    echo "<td class='wrap'>" . htmlspecialchars($date_of_submission) . "</td>";
-                                    echo "<td class='wrap'>" . htmlspecialchars($title) . "</td>";
-                                    echo "<td class='wrap'>" . htmlspecialchars($main_author) . "</td>";
-                                    echo "<td>" . htmlspecialchars($co_author_1) . "</td>";
-                                    echo "<td>" . htmlspecialchars($co_author_2) . "</td>";
-                                    echo "<td>" . htmlspecialchars($others) . "</td>";
-                                    echo "<td><a href='/Root_1/review_user.php?id=" . $id . "&type=research' target='_blank'>View PDF</a></td>";
-                                    echo "<td><a href='/Root_1/review_user.php?id=" . $id . "&type=abstract' target='_blank'>View PDF</a></td>";
+                    <?php
+                        // Fetch and display results as table rows
+                        if ($tbl_fileUpload_query->num_rows > 0) {
+                            $tbl_fileUpload_query->bind_result($id, $date_of_submission, $title, $main_author, $co_author_1, $co_author_2, $others, $file_research_paper, $file_abstract, $notification, $sched_proposal, $sched_final, $research_status);
+                            
+                            while ($tbl_fileUpload_query->fetch()) {
+                                echo "<tr>";
+                                echo "<td class='wrap'>" . htmlspecialchars($date_of_submission) . "</td>";
+                                echo "<td class='wrap'>" . htmlspecialchars($title) . "</td>";
+                                echo "<td class='wrap'>" . htmlspecialchars($main_author) . "</td>";
+                                echo "<td>" . htmlspecialchars($co_author_1) . "</td>";
+                                echo "<td>" . htmlspecialchars($co_author_2) . "</td>";
+                                echo "<td>" . htmlspecialchars($others) . "</td>";
+                                echo "<td><a href='review_user.php?id=" . htmlspecialchars($id) . "&type=research' target='_blank'>View PDF</a></td>";
+                                echo "<td><a href='review_user.php?id=" . htmlspecialchars($id) . "&type=abstract' target='_blank'>View PDF</a></td>";
+                                echo "<td class='wrap'>" . htmlspecialchars($notification) . "</td>";
+                                echo "<td>" . htmlspecialchars($sched_proposal) . "</td>";
+                                echo "<td>" . htmlspecialchars($sched_final) . "</td>";
+                                echo "<td>" . htmlspecialchars($research_status) . "</td>";
 
-                                    echo "<td class='wrap'>" . htmlspecialchars($notification) . "</td>";
-                                    echo "<td>" . htmlspecialchars($sched_proposal) . "</td>";
-                                    echo "<td>" . htmlspecialchars($sched_final) . "</td>";
-                                    echo "<td>" . htmlspecialchars($research_status) . "</td>";
-                                    echo "<td><button 
-                                            class='btn-resubmit' 
-                                            data-id='" . $id . "' 
+                                // Edit button with correct data attributes
+                                echo "<td>
+                                        <button class='btn btn-warning btn-edit'
+                                            data-id='" . htmlspecialchars($id) . "'
                                             data-title='" . htmlspecialchars($title) . "'
-                                            data-main_author='" . htmlspecialchars($main_author) . "'
-                                             data-co_author_1='" . htmlspecialchars($co_author_1) . "'
-                                            data-co_author_2='" . htmlspecialchars($co_author_2) . "'
+                                            data-main-author='" . htmlspecialchars($main_author) . "'
+                                            data-co-author-1='" . htmlspecialchars($co_author_1) . "'
+                                            data-co-author-2='" . htmlspecialchars($co_author_2) . "'
                                             data-others='" . htmlspecialchars($others) . "'
-                                            data-research_paper='" . htmlspecialchars($file_research_paper) . "'
-                                            data-abstract='" . htmlspecialchars($file_abstract) . "'
-                                        >
-                                        Edit
-                                        </button></td>";
-                                    echo "</tr>";
-                                }
-                            } else {
-                                echo "<tr><td colspan='7'>No submissions found.</td></tr>";
+                                            data-research-paper='" . htmlspecialchars($file_research_paper) . "'
+                                            data-abstract='" . htmlspecialchars($file_abstract) . "'>
+                                            Edit
+                                        </button>
+                                    </td>";
+                                echo "</tr>";
                             }
+                        } else {
+                            echo "<tr><td colspan='13'>No submissions found.</td></tr>";
+                        }
 
-                            $tbl_fileUpload_query->close();
-                        ?>
+                        $tbl_fileUpload_query->close();
+                    ?>
                     </tbody>
                 </table>
             </div>
@@ -526,46 +417,135 @@
                 </ul>
             </nav>
         </div>
+        <!--Uploaded File Dashboard END-->
+        
 
-        <!--Uploaded File Dashboard START-->
+        <!-- Edit Modal START -->
+        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Edit Submission</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editForm" enctype="multipart/form-data">
+                            <input type="hidden" id="edit_id">
+                            
+                            <!-- Title -->
+                            <div class="mb-3">
+                                <label for="edit_title" class="form-label">Title</label>
+                                <input type="text" name="title" class="form-control" id="edit_title">
+                            </div>
 
+                            <!-- Authors -->
+                            <div class="mb-3">
+                                <label for="edit_main_author" class="form-label">Main Author</label>
+                                <input type="text" name="main_author" class="form-control" id="edit_main_author">
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_co_author_1" class="form-label">Co-Author 1</label>
+                                <input type="text" name="co_author_1" class="form-control" id="edit_co_author_1">
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_co_author_2" class="form-label">Co-Author 2</label>
+                                <input type="text" name="co_author_2" class="form-control" id="edit_co_author_2">
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_others" class="form-label">More Authors</label>
+                                <input type="text" name="others" class="form-control" id="edit_others">
+                            </div>
+
+                            <!-- File Uploads -->
+                            <div class="mb-3">
+                                <label class="form-label">Current Research Paper:</label>
+                                <a href="review_user.php?id=<?php echo htmlspecialchars($id); ?>&type=research" id="current_research_paper" target="_blank">View PDF</a>
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_research_paper" class="form-label">Upload New Research Paper</label>
+                                <input type="file" name="new_research_paper" class="form-control" id="edit_research_paper" name="research_paper">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Current Abstract:</label>
+                                <a href="review_user.php?id=<?php echo htmlspecialchars($id); ?>&type=abstract" id="current_abstract" target="_blank">View PDF</a>
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_abstract" class="form-label">Upload New Abstract</label>
+                                <input type="file" name="new_abstract" class="form-control" id="edit_abstract" name="abstract">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="saveChanges">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Edit Modal END -->
     </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const editButtons = document.querySelectorAll('.btn-resubmit');
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".btn-edit").forEach(button => {
+        button.addEventListener("click", function () {
+            // Populate input fields
+            document.getElementById("edit_id").value = this.dataset.id;
+            document.getElementById("edit_title").value = this.dataset.title;
+            document.getElementById("edit_main_author").value = this.dataset.mainAuthor;
+            document.getElementById("edit_co_author_1").value = this.dataset['co-author-1'];
+            document.getElementById("edit_co_author_2").value = this.dataset['co-author-2'];
+            document.getElementById("edit_others").value = this.dataset.others;
 
-        editButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const submissionId = this.getAttribute('data-id');
-                document.getElementById('submission_id').value = submissionId;
+            // Retain current file links
+            let researchPaper = this.dataset.researchPaper || "No file uploaded";
+            let abstractPaper = this.dataset.abstract || "No file uploaded";
 
-                document.getElementById('title').value = this.getAttribute('data-title');
-                document.getElementById('main_author').value = this.getAttribute('data-main_author');
-                document.getElementById('co_author_1').value = this.getAttribute('data-co_author_1');
-                document.getElementById('co_author_2').value = this.getAttribute('data-co_author_2');
-                document.getElementById('others').value = this.getAttribute('data-others');
+            let researchPaperElement = document.getElementById("current_research_paper");
+            let abstractElement = document.getElementById("current_abstract");
 
-                const researchPaper = this.getAttribute('data-research_paper');
-                const abstractFile = this.getAttribute('data-abstract');
+            if (researchPaper !== "No file uploaded") {
+                researchPaperElement.href = "uploads/" + researchPaper;
+                researchPaperElement.textContent = researchPaper;
+            } else {
+                researchPaperElement.textContent = researchPaper;
+                researchPaperElement.removeAttribute("href");
+            }
 
-                document.getElementById('existing_research_paper').value = researchPaper;
-                document.getElementById('existing_abstract').value = abstractFile;
+            if (abstractPaper !== "No file uploaded") {
+                abstractElement.href = "uploads/" + abstractPaper;
+                abstractElement.textContent = abstractPaper;
+            } else {
+                abstractElement.textContent = abstractPaper;
+                abstractElement.removeAttribute("href");
+            }
 
-                document.getElementById('current_research_paper').innerHTML = 
-                    `Current: <a href="/uploads/${researchPaper}" target="_blank">${researchPaper}</a>`;
-
-                document.getElementById('current_abstract').innerHTML = 
-                    `Current: <a href="/uploads/${abstractFile}" target="_blank">${abstractFile}</a>`;
-
-                document.getElementById('file_research_paper').required = false;
-                document.getElementById('file_abstract').required = false;
-
-
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+            // Show the modal
+            let editModal = new bootstrap.Modal(document.getElementById("editModal"));
+            editModal.show();
         });
     });
+
+    document.getElementById("saveChanges").addEventListener("click", function () {
+        let form = document.getElementById("editForm");
+        let formData = new FormData(form);
+        formData.append("id", document.getElementById("edit_id").value);
+
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "update.php", true);
+        xhr.onload = function () {
+            if (xhr.status == 200) {
+                alert(xhr.responseText);
+                location.reload();
+            } else {
+                alert("Error updating submission.");
+            }
+        };
+        xhr.send(formData);
+    });
+});
+
 </script>
 
 </body>
