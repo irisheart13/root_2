@@ -2,7 +2,7 @@
     session_start();
     include 'conn.php';
 
-    //Verification of user if they are admin
+    // Verification of user if they are admin
     if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
         header("Location: index.php");
         exit();
@@ -13,36 +13,6 @@
     $admin_department = $_SESSION['department']; 
     $admin_program = $_SESSION['program'];
 
-    // Handle update status
-    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
-        $id = $_POST['id'];
-        $notif = !empty($_POST['notification']) ? $_POST['notification'] : NULL;
-        $sched_proposal = !empty($_POST['sched_proposal']) ? $_POST['sched_proposal'] : NULL;
-        $sched_final = !empty($_POST['sched_final']) ? $_POST['sched_final'] : NULL;
-        $research_status = !empty($_POST['research_status']) ? $_POST['research_status'] : NULL;
-
-        // Prepare the query
-        $sql = "UPDATE tbl_fileUpload
-            SET notification=?, sched_proposal=?, sched_final=?, research_status=? 
-            WHERE id=? AND department=? AND program=?";
-        $stmt = $conn->prepare($sql);
-
-        if ($stmt) {
-            $stmt->bind_param("ssssiss", $notif, $sched_proposal, $sched_final, $research_status, $id, $admin_department, $admin_program);
-
-            if ($stmt->execute()) {
-                echo "<script>alert('Record updated successfully!'); window.location.href='research_coor.php';</script>";
-                exit();
-            } else {
-                echo "Error updating record: " . $stmt->error;
-            }
-
-            $stmt->close();
-        } else {
-            echo "Error in preparing statement: " . $conn->error;
-        }
-    }
-
     // Fetch only records from the admin's department and program
     $sql = "SELECT * FROM tbl_fileUpload WHERE department=? AND program=?";
     $stmt = $conn->prepare($sql);
@@ -50,6 +20,7 @@
     $stmt->execute();
     $result = $stmt->get_result();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -200,6 +171,64 @@
         background-color: #ffff3f;
     }
     /*Table Design END*/
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 34px;
+        height: 20px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 20px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #4CAF50;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(14px);
+    }
+
+    .btn-edit {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .btn-edit:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
 </style>
 <body>
     <div class="container-fluid">
@@ -234,6 +263,7 @@
                             <th class="wrap">Schedule for Proposal Presentation</th>
                             <th class="wrap">Schedule for Final Presentation</th>
                             <th>Research Status</th>
+                            <th>Edit Access</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -252,7 +282,7 @@
                                 <td>
                                     <a href='/Root_1/review_admin.php?id=<?= $row['id'] ?>&type=abstract' target='_blank'>View File</a>
                                 </td>
-                                    <form action="research_coor.php" method="POST">
+                                    <form action="update_coor.php" method="POST">
                                         <td>
                                             <input type="hidden" name="id" value="<?= $row['id'] ?>">
                                             <select name="notification" class="custom-select">
@@ -277,6 +307,13 @@
                                             </select>
                                         </td>
                                         <td>
+                                            <label class="switch">
+                                                <input type="checkbox" name="edit_access" value="1" <?= $row['edit_access'] ? 'checked' : '' ?> onchange="this.form.submit()">
+                                                <span class="slider round"></span>
+                                            </label>
+                                            <input type="hidden" name="toggle_edit_access" value="1">
+                                        </td>
+                                        <td>
                                             <button type="submit" name="update_status" class="btn-submit">Save</button>
                                         </td>
                                     </form>
@@ -287,5 +324,17 @@
             </div>
             <!--File Dashboard END-->
     </div>
+<script>
+    function toggleEditButton(id) {
+        var toggle = document.getElementById("toggle-" + id);
+        var editButton = document.getElementById("edit-btn-" + id);
+
+        if (toggle.checked) {
+            editButton.removeAttribute("disabled");
+        } else {
+            editButton.setAttribute("disabled", "true");
+        }
+    }
+</script>
 </body>
 </html>

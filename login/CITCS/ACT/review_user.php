@@ -29,6 +29,20 @@
 
     // Construct full file path
     $file_path = "uploads/" . $file_name;
+
+    // Fetch comments along with the admin's name
+    $sql = "SELECT ac.title, ac.abstract, ac.others, u.username AS reviewer_name
+            FROM admin_comments ac
+            LEFT JOIN tbl_user u ON ac.admin_id = u.id
+            WHERE ac.file_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $comments = $result->fetch_assoc();
+
+    $stmt->close();
+    $conn->close();
 ?>
 
 
@@ -159,6 +173,11 @@
     }
     label{
         padding-top: 15px;
+        font-weight: 700;
+    }
+    .custom-name{
+        font-style: italic;
+        color: yellow;
     }
     .custom-textarea{
         padding: 10px;
@@ -207,22 +226,37 @@
                 <div class="col-12 col-md-3">
                     <div class="row com_sec">
                         <div class="col-12">
-                            <label>Title:</label>
-                        </div>
-                        <div class="col-12 custom-txtbox">
-                            <!--ECHO COMMENT FROM REVIEW_ADMIN-->
-                        </div>
-                        <div class="col-12 ">
-                            <label>Abstract:</label>
-                        </div>
-                        <div class="col-12 custom-txtbox">
-                            <!--ECHO COMMENT FROM REVIEW_ADMIN-->
+                            <row>
+                                <div col="col-12">
+                                    <label>Title:</label>
+                                </div>
+                                <div col="col-12">
+                                    <?= htmlspecialchars($comments['title'] ?? 'No comment yet.') ?>
+                                </div>
+                            </row>
                         </div>
                         <div class="col-12">
-                            <label>Others:</label>
+                            <row>
+                                <div col="col-12">
+                                    <label>Abstract:</label>
+                                </div>
+                                <div col="col-12">
+                                    <?= htmlspecialchars($comments['abstract'] ?? 'No comment yet.') ?>
+                                </div>
+                            </row>
                         </div>
-                        <div class="col-12 custom-txtbox">
-                            <!--ECHO COMMENT FROM REVIEW_ADMIN-->
+                        <div class="col-12">
+                            <row>
+                                <div col="col-12">
+                                    <label>Others:</label>
+                                </div>
+                                <div col="col-12">
+                                    <?= htmlspecialchars($comments['others'] ?? 'No comment yet.') ?>
+                                </div>
+                            </row>
+                        </div>
+                        <div col="col-12">
+                            <p class="custom-name">Reviewed by: <?= htmlspecialchars($comments['reviewer_name'] ?? 'Unknown Admin') ?></p>
                         </div>
                     </div>
                 </div>

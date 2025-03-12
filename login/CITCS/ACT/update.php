@@ -20,20 +20,20 @@
         $query->fetch();
         $query->close();
 
-        // Handle Research Paper Upload
+        // Handle Research Paper Upload with prefix "Resubmitted_"
         if (!empty($_FILES['new_research_paper']['name'])) {
-            $new_research_paper = basename($_FILES["new_research_paper"]["name"]);
+            $new_research_paper = "Resubmitted_" . basename($_FILES["new_research_paper"]["name"]);
             move_uploaded_file($_FILES["new_research_paper"]["tmp_name"], $upload_dir . $new_research_paper);
         } else {
-            $new_research_paper = $file_research_paper;
+            $new_research_paper = $file_research_paper; // Retain old file if no new file is uploaded
         }
 
-        // Handle Abstract Upload
+        // Handle Abstract Upload with prefix "Resubmitted_"
         if (!empty($_FILES['new_abstract']['name'])) {
-            $new_abstract = basename($_FILES["new_abstract"]["name"]);
+            $new_abstract = "Resubmitted_" . basename($_FILES["new_abstract"]["name"]);
             move_uploaded_file($_FILES["new_abstract"]["tmp_name"], $upload_dir . $new_abstract);
         } else {
-            $new_abstract = $file_abstract;
+            $new_abstract = $file_abstract; // Retain old file if no new file is uploaded
         }
 
         // Update database

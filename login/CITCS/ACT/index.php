@@ -16,22 +16,32 @@
     $offset = ($page - 1) * $limit;
 
     // Fetch user data with pagination
-    $tbl_fileUpload_query = $conn->prepare("SELECT id, date_of_submission, title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, notification, DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, DATE_FORMAT(sched_final, '%b %d, %Y') AS formatted_sched_final, research_status
-                                        FROM tbl_fileUpload WHERE username = ? ORDER BY date_of_submission DESC LIMIT ? OFFSET ?");
-    $tbl_fileUpload_query->bind_param("sii", $user_name, $limit, $offset);
+    $sql = "SELECT id, date_of_submission, title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, notification, 
+            DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, 
+            DATE_FORMAT(sched_final, '%b %d, %Y') AS formatted_sched_final, 
+            research_status, edit_access
+            FROM tbl_fileUpload 
+            WHERE username = ? 
+            ORDER BY date_of_submission DESC 
+            LIMIT $limit OFFSET $offset";
+
+    $tbl_fileUpload_query = $conn->prepare($sql);
+    $tbl_fileUpload_query->bind_param("s", $user_name);
     $tbl_fileUpload_query->execute();
     $tbl_fileUpload_query->store_result();
-    $tbl_fileUpload_query->bind_result($id, $date_of_submission, $title, $main_author, $co_author_1, $co_author_2, $others, $file_research_paper, $file_abstract, $notification, $sched_proposal, $sched_final, $research_status);
+    $tbl_fileUpload_query->bind_result($id, $date_of_submission, $title, $main_author, $co_author_1, $co_author_2, $others, $file_research_paper, $file_abstract, $notification, $sched_proposal, $sched_final, $research_status, $edit_access);
 
     // Total records for pagination
     $total_query = $conn->prepare("SELECT COUNT(*) FROM tbl_fileUpload WHERE username = ?");
     $total_query->bind_param("s", $user_name);
     $total_query->execute();
+    $total_query->store_result();
     $total_query->bind_result($total_rows);
     $total_query->fetch();
     $total_query->close();
 
-    $total_pages = ceil($total_rows / $limit);
+    $total_pages = ($total_rows > 0) ? ceil($total_rows / $limit) : 1;
+
 ?>
 
 
@@ -344,7 +354,7 @@
                     <?php
                         // Fetch and display results as table rows
                         if ($tbl_fileUpload_query->num_rows > 0) {
-                            $tbl_fileUpload_query->bind_result($id, $date_of_submission, $title, $main_author, $co_author_1, $co_author_2, $others, $file_research_paper, $file_abstract, $notification, $sched_proposal, $sched_final, $research_status);
+                            $tbl_fileUpload_query->bind_result($id, $date_of_submission, $title, $main_author, $co_author_1, $co_author_2, $others, $file_research_paper, $file_abstract, $notification, $sched_proposal, $sched_final, $research_status, $edit_access);
                             
                             while ($tbl_fileUpload_query->fetch()) {
                                 echo "<tr>";
@@ -371,10 +381,12 @@
                                             data-co-author-2='" . htmlspecialchars($co_author_2) . "'
                                             data-others='" . htmlspecialchars($others) . "'
                                             data-research-paper='" . htmlspecialchars($file_research_paper) . "'
-                                            data-abstract='" . htmlspecialchars($file_abstract) . "'>
+                                            data-abstract='" . htmlspecialchars($file_abstract) . "' " 
+                                            . ($row['edit_access'] ? "" : "disabled") . ">
                                             Edit
                                         </button>
-                                    </td>";
+                                      </td>";
+
                                 echo "</tr>";
                             }
                         } else {
@@ -419,7 +431,6 @@
         </div>
         <!--Uploaded File Dashboard END-->
         
-
         <!-- Edit Modal START -->
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -458,21 +469,12 @@
 
                             <!-- File Uploads -->
                             <div class="mb-3">
-                                <label class="form-label">Current Research Paper:</label>
-                                <a href="review_user.php?id=<?php echo htmlspecialchars($id); ?>&type=research" id="current_research_paper" target="_blank">View PDF</a>
-                            </div>
-                            <div class="mb-3">
                                 <label for="edit_research_paper" class="form-label">Upload New Research Paper</label>
-                                <input type="file" name="new_research_paper" class="form-control" id="edit_research_paper" name="research_paper">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Current Abstract:</label>
-                                <a href="review_user.php?id=<?php echo htmlspecialchars($id); ?>&type=abstract" id="current_abstract" target="_blank">View PDF</a>
+                                <input type="file" name="new_research_paper" class="form-control" id="edit_research_paper">
                             </div>
                             <div class="mb-3">
                                 <label for="edit_abstract" class="form-label">Upload New Abstract</label>
-                                <input type="file" name="new_abstract" class="form-control" id="edit_abstract" name="abstract">
+                                <input type="file" name="new_abstract" class="form-control" id="edit_abstract">
                             </div>
                         </form>
                     </div>
@@ -487,65 +489,41 @@
     </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".btn-edit").forEach(button => {
-        button.addEventListener("click", function () {
-            // Populate input fields
-            document.getElementById("edit_id").value = this.dataset.id;
-            document.getElementById("edit_title").value = this.dataset.title;
-            document.getElementById("edit_main_author").value = this.dataset.mainAuthor;
-            document.getElementById("edit_co_author_1").value = this.dataset['co-author-1'];
-            document.getElementById("edit_co_author_2").value = this.dataset['co-author-2'];
-            document.getElementById("edit_others").value = this.dataset.others;
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-edit").forEach(button => {
+            button.addEventListener("click", function () {
+                // Populate input fields, ensuring empty values remain blank
+                document.getElementById("edit_id").value = this.dataset.id || "";
+                document.getElementById("edit_title").value = this.dataset.title || "";
+                document.getElementById("edit_main_author").value = this.dataset.mainAuthor || "";
+                document.getElementById("edit_co_author_1").value = this.dataset['co-author-1'] || "";
+                document.getElementById("edit_co_author_2").value = this.dataset['co-author-2'] || "";
+                document.getElementById("edit_others").value = this.dataset.others || "";
 
-            // Retain current file links
-            let researchPaper = this.dataset.researchPaper || "No file uploaded";
-            let abstractPaper = this.dataset.abstract || "No file uploaded";
+                // Show the modal
+                let editModal = new bootstrap.Modal(document.getElementById("editModal"));
+                editModal.show();
+            });
+        });
 
-            let researchPaperElement = document.getElementById("current_research_paper");
-            let abstractElement = document.getElementById("current_abstract");
+        document.getElementById("saveChanges").addEventListener("click", function () {
+            let form = document.getElementById("editForm");
+            let formData = new FormData(form);
+            formData.append("id", document.getElementById("edit_id").value);
 
-            if (researchPaper !== "No file uploaded") {
-                researchPaperElement.href = "uploads/" + researchPaper;
-                researchPaperElement.textContent = researchPaper;
-            } else {
-                researchPaperElement.textContent = researchPaper;
-                researchPaperElement.removeAttribute("href");
-            }
-
-            if (abstractPaper !== "No file uploaded") {
-                abstractElement.href = "uploads/" + abstractPaper;
-                abstractElement.textContent = abstractPaper;
-            } else {
-                abstractElement.textContent = abstractPaper;
-                abstractElement.removeAttribute("href");
-            }
-
-            // Show the modal
-            let editModal = new bootstrap.Modal(document.getElementById("editModal"));
-            editModal.show();
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", "update.php", true);
+            xhr.onload = function () {
+                if (xhr.status == 200) {
+                    alert(xhr.responseText);
+                    location.reload();
+                } else {
+                    alert("Error updating submission.");
+                }
+            };
+            xhr.send(formData);
         });
     });
-
-    document.getElementById("saveChanges").addEventListener("click", function () {
-        let form = document.getElementById("editForm");
-        let formData = new FormData(form);
-        formData.append("id", document.getElementById("edit_id").value);
-
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", "update.php", true);
-        xhr.onload = function () {
-            if (xhr.status == 200) {
-                alert(xhr.responseText);
-                location.reload();
-            } else {
-                alert("Error updating submission.");
-            }
-        };
-        xhr.send(formData);
-    });
-});
-
 </script>
 
 </body>
