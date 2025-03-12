@@ -168,7 +168,7 @@
     .com_sec{
         background-color: #283618;
         color: white;
-        height: 100vh;
+        height: 100%;
         padding: 10px;
     }
     label{
@@ -178,11 +178,12 @@
     .custom-name{
         font-style: italic;
         color: yellow;
+        font-size: 13px;
     }
     .custom-textarea{
         padding: 10px;
         width: 100%;
-        height: 130px;
+        height: auto;
     }
     .btn-submit{
         margin-right: 20px;
@@ -225,8 +226,24 @@
                 </div>
                 <div class="col-12 col-md-3">
                     <div class="row com_sec">
+                        <!-- <div class="col-12">
+                            <div class="row">
+                                <div col="col-12 custom-name">
+                                    <?= htmlspecialchars($comments['reviewer_name'] ?? 'Unknown Admin') ?>
+                                </div>
+                                <div col="col-12">
+                                    <p class="custom-name">Reviewed by:</p>
+                                </div>
+                            </div>
+                        </div> -->
                         <div class="col-12">
                             <row>
+                                <div col="col-12">
+                                    <?= htmlspecialchars($comments['reviewer_name'] ?? 'Unknown Admin') ?>
+                                </div>
+                                <div col="col-12">
+                                    <p class="custom-name">Reviewed by:</p>
+                                </div>
                                 <div col="col-12">
                                     <label>Title:</label>
                                 </div>
@@ -254,9 +271,6 @@
                                     <?= htmlspecialchars($comments['others'] ?? 'No comment yet.') ?>
                                 </div>
                             </row>
-                        </div>
-                        <div col="col-12">
-                            <p class="custom-name">Reviewed by: <?= htmlspecialchars($comments['reviewer_name'] ?? 'Unknown Admin') ?></p>
                         </div>
                     </div>
                 </div>

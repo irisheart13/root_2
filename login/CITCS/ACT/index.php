@@ -371,7 +371,6 @@
                                 echo "<td>" . htmlspecialchars($sched_final) . "</td>";
                                 echo "<td>" . htmlspecialchars($research_status) . "</td>";
 
-                                // Edit button with correct data attributes
                                 echo "<td>
                                         <button class='btn btn-warning btn-edit'
                                             data-id='" . htmlspecialchars($id) . "'
@@ -382,10 +381,10 @@
                                             data-others='" . htmlspecialchars($others) . "'
                                             data-research-paper='" . htmlspecialchars($file_research_paper) . "'
                                             data-abstract='" . htmlspecialchars($file_abstract) . "' " 
-                                            . ($row['edit_access'] ? "" : "disabled") . ">
+                                            . ($edit_access ? "" : "disabled") . ">
                                             Edit
                                         </button>
-                                      </td>";
+                                    </td>";
 
                                 echo "</tr>";
                             }
