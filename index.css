@@ -1,0 +1,150 @@
+/* Poppins Regular */
+@font-face {
+    font-family: 'Poppins';
+    src: url('/Root_1/Poppins/Poppins-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* Poppins Bold */
+@font-face {
+    font-family: 'Poppins';
+    src: url('/Root_1/Poppins/Poppins-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* Poppins Italic */
+@font-face {
+    font-family: 'Poppins';
+    src: url('/Root_1/Poppins/Poppins-Italic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+}
+
+/* Poppins Light */
+@font-face {
+    font-family: 'Poppins';
+    src: url('/Root_1/Poppins/Poppins-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+:root {
+    --bs-body-font-size: 16px;
+    --bs-body-bg: #00272B !important;
+    --bs-body-font-family: 'Poppins', sans-serif !important;
+}
+
+body{
+    padding: 20px;
+    width: 100vw;
+    height:100vh;
+
+    font-size: var(--bs-body-font-size);
+    font-family: var(--bs-body-font-family) !important;
+    color: white;
+
+    background-color: var(--bs-body-bg) !important;
+    overflow-y: hidden;
+
+    /* border: 1px solid red; */
+}
+
+.main{
+    padding:0;
+    margin:0;
+
+    /* border: 1px solid white; */
+}
+/*Nav Bar Design START*/
+.navBarSection{
+    padding:0;
+}
+.row{
+    padding:0;
+}
+.img-logo{
+    width:40px;
+    height:40px;
+}
+.txt-welcome{
+    font-weight: 700;
+    font-size:20px;
+    color: #80B918;
+}
+.txt-email{
+    font-size: 14px;
+    color: #80B918;
+}
+/*Nav Bar Design END*/
+
+/* Login and List of abstract design START */
+.lnlSection{
+    margin-top: 50px;
+}
+    /* Image Side START */
+    .img-section {
+        width: 100%;
+        height: 100%;
+        display: flex;
+
+        padding:0;
+    }
+    .img-plmun_rlrc {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Ensures the div is fully covered */
+        object-position: 20% 50%;
+
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+    }
+    /* Image Side END */
+
+    /* LOGIN FORM START */
+    .login-box{
+        width: 100%;
+        height: 450px;
+
+        background-color: #dce1de;
+        border-radius: 10px;
+    }
+    .txt-plmun{
+        font-size: 36px;
+        font-weight: 700;
+        color: #80B918;
+    }
+    .txt-wVM{
+        font-weight: 200;
+        font-style: italic;
+    }
+
+    input.form-control::placeholder {
+        color: white;
+        text-align: start;
+    }
+    input.form-control {
+        color: white !important;
+        background-color: #00272B !important; 
+    }
+    .btn-login{
+        width:100%;
+        height:35px;
+        color: white;
+        background-color: #00272B;
+
+        border-width: 1px;
+        border-radius: 10px;
+    }
+    /* LOGIN FORM END */
+/* Login and List of abstract design END */
+
+
+@media (max-width: 576px)  {
+.txt-email{
+    font-size: 9px;
+}
+.lnlSection{
+    margin-top: 30px;
+}
+}
