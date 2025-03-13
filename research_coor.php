@@ -28,7 +28,6 @@
     <meta charset="UTF-8">
     <title>ADMIN</title>
 
-
     <link href="/Root_1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="/Root_1/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -248,21 +247,39 @@
         <!--File Dashboard START-->
         <div class="dashboard">
             <div class="table-responsive">
-                <table class="table table-striped custom-table">
+                <div class="row search-row p-2">
+                    <div class="col-3">
+                        <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterTable()">
+                    </div>
+                    <!-- <div class="col-1">
+                        <label for="sortSelect">Sort by:</label>
+                        <select id="sortSelect" onchange="sortTableByDropdown()">
+                            <option value="">Select Column</option>
+                            <option value="0">Date of Submission</option>
+                            <option value="1">Title</option>
+                            <option value="2">Main Author</option>
+                            <option value="3">Co-Author 1</option>
+                            <option value="4">Co-Author 2</option>
+                            <option value="5">More Authors</option>
+                            <option value="11">Research Status</option>
+                        </select>
+                    </div> -->
+                </div>
+                <table class="table table-striped custom-table" id="researchTable">
                     <thead>
                         <tr>
-                            <th class="wrap">Date of Submission</th>
-                            <th>Title</th>
-                            <th>Main Author</th>
-                            <th>Co-Author 1</th>
-                            <th>Co-Author 2</th>
-                            <th>More Authors</th>
+                            <th class="wrap" onclick="sortTable(0)">Date of Submission</th>
+                            <th onclick="sortTable(1)">Title</th>
+                            <th onclick="sortTable(2)">Main Author</th>
+                            <th onclick="sortTable(3)">Co-Author 1</th>
+                            <th onclick="sortTable(4)">Co-Author 2</th>
+                            <th onclick="sortTable(5)">More Authors</th>
                             <th class="wrap">Uploaded Research Paper</th>
                             <th class="wrap">Uploaded Abstract</th>
-                            <th>Notifications</th>
+                            <th onclick="sortTable(8)">Notifications</th>
                             <th class="wrap">Schedule for Proposal Presentation</th>
                             <th class="wrap">Schedule for Final Presentation</th>
-                            <th>Research Status</th>
+                            <th onclick="sortTable(11)">Research Status</th>
                             <th>Edit Access</th>
                             <th>Action</th>
                         </tr>
@@ -283,29 +300,34 @@
                                     <a href='/Root_1/review_admin.php?id=<?= $row['id'] ?>&type=abstract' target='_blank'>View File</a>
                                 </td>
                                     <form action="update_coor.php" method="POST">
+                                        <input type="hidden" name="id" value="<?= $row['id'] ?>">
+
                                         <td>
-                                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
                                             <select name="notification" class="custom-select">
-                                                <option  class="custom-option" value="" disabled selected>Select</option>
-                                                <option class="custom-option" <?= ($row['notification'] == 'For Revision') ? 'selected' : '' ?>>For Revision</option>
-                                                <option class="custom-option" <?= ($row['notification'] == 'Scheduled for Research Proposal Presentation') ? 'selected' : '' ?>>Scheduled for Research Proposal Presentation</option>
-                                                <option class="custom-option" <?= ($row['notification'] == 'Scheduled for Final Research Presentation') ? 'selected' : '' ?>>Scheduled for Final Research Presentation</option>
-                                                <option class="custom-option" <?= ($row['notification'] == 'Please See Comments') ? 'selected' : '' ?>>Please See Comments</option>
+                                                <option class="custom-option" value="" disabled selected>Select</option>
+                                                <option class="custom-option" value="For Revision" <?= ($row['notification'] == 'For Revision') ? 'selected' : '' ?>>For Revision</option>
+                                                <option class="custom-option" value="Scheduled for Research Proposal Presentation" <?= ($row['notification'] == 'Scheduled for Research Proposal Presentation') ? 'selected' : '' ?>>Scheduled for Research Proposal Presentation</option>
+                                                <option class="custom-option" value="Scheduled for Final Research Presentation" <?= ($row['notification'] == 'Scheduled for Final Research Presentation') ? 'selected' : '' ?>>Scheduled for Final Research Presentation</option>
+                                                <option class="custom-option" value="Please See Comments" <?= ($row['notification'] == 'Please See Comments') ? 'selected' : '' ?>>Please See Comments</option>
                                             </select>
                                         </td>
+
                                         <td>
-                                            <input type="date" class="custom-date" name="sched_proposal" value="<?= $row['sched_proposal'] ?>">
+                                            <input type="date" class="custom-date" name="sched_proposal" value="<?= htmlspecialchars($row['sched_proposal']) ?>">
                                         </td>
+
                                         <td>
-                                            <input type="date" class="custom-date" name="sched_final" value="<?= $row['sched_final'] ?>">
+                                            <input type="date" class="custom-date" name="sched_final" value="<?= htmlspecialchars($row['sched_final']) ?>">
                                         </td>
+
                                         <td>
                                             <select name="research_status" class="custom-select">
-                                                <option  class="custom-option" value="" disabled selected>Select</option>
-                                                <option class="custom-option" <?= ($row['notification'] == 'Presented') ? 'selected' : '' ?>>Presented</option>
-                                                <option class="custom-option" <?= ($row['notification'] == 'Implemented') ? 'selected' : '' ?>>Implemented</option>
+                                                <option class="custom-option" value="" disabled selected>Select</option>
+                                                <option class="custom-option" value="Presented" <?= ($row['research_status'] == 'Presented') ? 'selected' : '' ?>>Presented</option>
+                                                <option class="custom-option" value="Implemented" <?= ($row['research_status'] == 'Implemented') ? 'selected' : '' ?>>Implemented</option>
                                             </select>
                                         </td>
+
                                         <td>
                                             <label class="switch">
                                                 <input type="checkbox" name="edit_access" value="1" <?= $row['edit_access'] ? 'checked' : '' ?> onchange="this.form.submit()">
@@ -313,6 +335,7 @@
                                             </label>
                                             <input type="hidden" name="toggle_edit_access" value="1">
                                         </td>
+
                                         <td>
                                             <button type="submit" name="update_status" class="btn-submit">Save</button>
                                         </td>
@@ -325,6 +348,7 @@
             <!--File Dashboard END-->
     </div>
 <script>
+    // Script for toggle button of edit access START
     function toggleEditButton(id) {
         var toggle = document.getElementById("toggle-" + id);
         var editButton = document.getElementById("edit-btn-" + id);
@@ -333,6 +357,23 @@
             editButton.removeAttribute("disabled");
         } else {
             editButton.setAttribute("disabled", "true");
+        }
+    }
+    // Script for toggle button of edit access END
+
+    // Script for search function 
+    function filterTable() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let table = document.getElementById("researchTable");
+        let rows = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < rows.length; i++) {
+            let cells = rows[i].getElementsByTagName("td");
+            let rowText = "";
+            for (let j = 0; j < cells.length; j++) {
+                rowText += cells[j].textContent.toLowerCase();
+            }
+            rows[i].style.display = rowText.includes(input) ? "" : "none";
         }
     }
 </script>
