@@ -19,76 +19,252 @@
     $stmt->bind_param("ss", $admin_department, $admin_program);
     $stmt->execute();
     $result = $stmt->get_result();
-
-     // Pagination
-    $limit = 5;
-    $page = isset($_GET['page']) && (int)$_GET['page'] > 0 ? (int)$_GET['page'] : 1;
-    $offset = ($page - 1) * $limit;
-
-    // Fetch user data with pagination
-    $sql = "SELECT id, date_of_submission, title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, notification, 
-            DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, 
-            DATE_FORMAT(sched_final, '%b %d, %Y') AS formatted_sched_final, 
-            research_status, edit_access
-            FROM tbl_fileUpload 
-            WHERE username = ? 
-            ORDER BY date_of_submission DESC 
-            LIMIT $limit OFFSET $offset";
-
-    // Total records for pagination
-    $total_query = $conn->prepare("SELECT COUNT(*) FROM tbl_fileUpload WHERE username = ?");
-    $total_query->bind_param("s", $user_name);
-    $total_query->execute();
-    $total_query->store_result();
-    $total_query->bind_result($total_rows);
-    $total_query->fetch();
-    $total_query->close();
-
-    $total_pages = ($total_rows > 0) ? ceil($total_rows / $limit) : 1;
 ?>
 
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
-
-    <link rel="stylesheet" href="./research_coor.css">
-    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="img/fontawesome-6.7.2/fontawesome-free-6.7.2-web/css/all.min.css">
-    <script src="dist/js/bootstrap.bundle.min.js"></script>
     <title>ADMIN</title>
+
+    <link href="/Root_1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/Root_1/dist/js/bootstrap.bundle.min.js"></script>
+
 </head>
+<style>
+    /* Poppins Regular */
+    @font-face {
+        font-family: 'Poppins';
+        src: url('/Root_1/Poppins/Poppins-Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    /* Poppins Bold */
+    @font-face {
+        font-family: 'Poppins';
+        src: url('/Root_1/Poppins/Poppins-Bold.ttf') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+    }
+
+    /* Poppins Italic */
+    @font-face {
+        font-family: 'Poppins';
+        src: url('/Root_1/Poppins/Poppins-Italic.ttf') format('truetype');
+        font-weight: 400;
+        font-style: italic;
+    }
+
+    /* Poppins Light */
+    @font-face {
+        font-family: 'Poppins';
+        src: url('/Root_1/Poppins/Poppins-Light.ttf') format('truetype');
+        font-weight: 300;
+        font-style: normal;
+    }
+
+    body{
+        margin: 0;
+        padding: 0;
+        overflow-y: visible;
+        overflow-x:hidden;
+
+        font-family: 'Poppins';
+
+        background-color: #dee2e6;
+    }
+
+    .container-fluid{
+        margin:0;
+        padding:0;
+    }
+    /*Nav Bar Design START*/
+    .nav-bar{
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 100vw;
+
+        margin: 0;
+        padding: 0;
+
+        background-color: #212529;
+    }
+   .logout{
+        display: flex;
+        justify-content: flex-end;
+        padding-top: 15px;
+    }
+    .btn-logout{
+        margin-right: 20px;
+
+        border: none;
+        border-radius: 10px;
+
+        width: 100px;
+        height: 25px;
+        background-color: #f5f5f5;
+    }
+    .user-display{
+        display: flex;
+        align-items: center;
+        padding-top: 15px;
+        padding-left: 30px;
+
+        text-align: start; 
+        vertical-align: middle;
+        font-size: 18px;
+        color: white;
+    }
+    /*Nav Bar Design END*/
+
+    /*Table Design START*/
+    .dashboard{
+        padding:0px;
+        margin-top: 60px;
+    }
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto; 
+        sheight: 100%; 
+    }
+    .custom-table {
+        table-layout: fixed; 
+        width: 1500px; 
+        white-space: nowrap; 
+    }
+    .custom-table th, .custom-table td {
+        width: 150px; 
+        text-overflow: ellipsis; 
+        overflow: hidden;
+    }
+    .custom-table td.wrap, .custom-table th.wrap {
+        white-space: normal !important; /* Allows text wrapping */
+        word-wrap: break-word; 
+        overflow-wrap: break-word;
+    }
+    .custom-select{
+        width: 90%;
+        border-radius: 5px;
+        border-style: none;
+        padding: 5px;
+
+        background-color: #80b918;
+        color: white;
+    }
+    .custom-option{
+        background-color: #f5f5f5;
+        color: black;
+    }
+    .custom-date{
+        width: 100%;
+    }
+    .btn-submit{
+        margin-top: 5px;
+        border-radius: 5px;
+        border-width: 1px;
+
+        background-color: #ffff3f;
+    }
+    /*Table Design END*/
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 34px;
+        height: 20px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 20px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #4CAF50;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(14px);
+    }
+
+    .btn-edit {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .btn-edit:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+</style>
 <body>
-    <div class="container-fluid main p-0">
+    <div class="container-fluid">
         <!--Nav Section START-->
-        <section class="navBarSection">
-            <div class="row p-1">
-                <!-- Hello -->
-                <div class="col-4 order-1 col-md-2 order-md-1 hello p-0 ps-md-2 d-flex align-items-center">
-                    <span class="txt-hello">Hello,</span>
-                    <span class="txt-username"><?php echo $user_name; ?>!</span>
-                </div>
-
-                <!-- Logout (Comes second on mobile, last on desktop) -->
-                <div class="col-4 offset-4 order-2 col-md-2 order-md-3 offset-md-0 d-flex align-items-center justify-content-end">
-                    <form action="/Root_1/logout.php" method="post">
-                        <button type="submit" class="btn-logout">Logout</button>
-                    </form>
-                </div>
-
-                <!-- Search (New row on mobile, in between on desktop) -->
-                <div class="col-6 order-3 col-md-2 order-md-2 d-flex align-items-center justify-content-center mx-auto search">
-                    <input type="text" class="input-search fa-search" id="searchInput" placeholder="Search..." onkeyup="filterTable()">
-                </div>
+        <div class="row nav-bar">
+            <div class="col-6 user-display">
+                <p>Hello, <?php echo $user_name; ?>!</p>
             </div>
-        </section>
+            <div class="col-6 logout">
+                <form action="/Root_1/logout.php" method="post">
+                    <button type="submit" class="btn-logout">Logout</button>
+                </form>
+            </div>
+        </div>
         <!--Nav Section END-->
 
-        <!--TABLE START-->
-        <section class="tableSection">
+        <!--File Dashboard START-->
+        <div class="dashboard">
             <div class="table-responsive">
+                <div class="row search-row p-2">
+                    <div class="col-3">
+                        <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterTable()">
+                    </div>
+                    <!-- <div class="col-1">
+                        <label for="sortSelect">Sort by:</label>
+                        <select id="sortSelect" onchange="sortTableByDropdown()">
+                            <option value="">Select Column</option>
+                            <option value="0">Date of Submission</option>
+                            <option value="1">Title</option>
+                            <option value="2">Main Author</option>
+                            <option value="3">Co-Author 1</option>
+                            <option value="4">Co-Author 2</option>
+                            <option value="5">More Authors</option>
+                            <option value="11">Research Status</option>
+                        </select>
+                    </div> -->
+                </div>
                 <table class="table table-striped custom-table" id="researchTable">
                     <thead>
                         <tr>
@@ -169,39 +345,7 @@
                     </tbody>
                 </table>
             </div>
-        </section>
-        <!--TABLE END-->
-
-        <!-- Pagination Links -->
-            <nav>
-                <ul class="pagination justify-content-center">
-                    <?php if ($page > 1): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page=<?= $page - 1 ?>">Previous</a>
-                        </li>
-                    <?php else: ?>
-                        <li class="page-item disabled">
-                            <a class="page-link">Previous</a>
-                        </li>
-                    <?php endif; ?>
-
-                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                        <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                            <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
-                        </li>
-                    <?php endfor; ?>
-
-                    <?php if ($page < $total_pages): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page=<?= $page + 1 ?>">Next</a>
-                        </li>
-                    <?php else: ?>
-                        <li class="page-item disabled">
-                            <a class="page-link">Next</a>
-                        </li>
-                    <?php endif; ?>
-                </ul>
-            </nav>
+            <!--File Dashboard END-->
     </div>
 <script>
     // Script for toggle button of edit access START

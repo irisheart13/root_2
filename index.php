@@ -17,10 +17,10 @@
                 <div class="col-2 col-md-1 p-0 d-flex align-items-center justify-content-center justify-content-md-end logo">
                     <img src="img/plmun_logo.png" alt="logo" class="img-logo">
                 </div>
-                <div class="col-3 col-md-2 welcome p-0 ps-md-2 d-flex align-items-center">
+                <div class="col-4 col-md-2 welcome p-0 ps-md-2 d-flex align-items-center">
                     <span class="txt-welcome">WELCOME</span>
                 </div>
-                <div class="col-7 col-md-3 offset-md-6 d-flex align-items-center justify-content-end">
+                <div class="col-6 col-md-3 offset-md-6 d-flex align-items-center justify-content-end">
                     <span class="txt-email align-items-center">plmuncomm@plmun.edu.ph</span>
                 </div>
             </div>
