@@ -20,24 +20,31 @@
     $stmt->execute();
     $result = $stmt->get_result();
 
-     // Pagination
-    $limit = 5;
+    // Pagination
+    $limit = 10;
     $page = isset($_GET['page']) && (int)$_GET['page'] > 0 ? (int)$_GET['page'] : 1;
     $offset = ($page - 1) * $limit;
 
-    // Fetch user data with pagination
-    $sql = "SELECT id, date_of_submission, title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, notification, 
-            DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, 
-            DATE_FORMAT(sched_final, '%b %d, %Y') AS formatted_sched_final, 
-            research_status, edit_access
+    // Fetch user data with pagination (Filter by department & program)
+    $sql = "SELECT id, 
+                DATE_FORMAT(date_of_submission, '%b %d, %Y %h:%i %p') AS formatted_date_of_submission, 
+                title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, notification, 
+                DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, 
+                DATE_FORMAT(sched_final, '%b %d, %Y') AS formatted_sched_final, 
+                research_status, edit_access
             FROM tbl_fileUpload 
-            WHERE username = ? 
+            WHERE department = ? AND program = ?
             ORDER BY date_of_submission DESC 
-            LIMIT $limit OFFSET $offset";
+            LIMIT ? OFFSET ?";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssii", $admin_department, $admin_program, $limit, $offset);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     // Total records for pagination
-    $total_query = $conn->prepare("SELECT COUNT(*) FROM tbl_fileUpload WHERE username = ?");
-    $total_query->bind_param("s", $user_name);
+    $total_query = $conn->prepare("SELECT COUNT(*) FROM tbl_fileUpload WHERE department = ? AND program = ?");
+    $total_query->bind_param("ss", $admin_department, $admin_program);
     $total_query->execute();
     $total_query->store_result();
     $total_query->bind_result($total_rows);
@@ -56,7 +63,6 @@
 
     <link rel="stylesheet" href="./research_coor.css">
     <link href="dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="img/fontawesome-6.7.2/fontawesome-free-6.7.2-web/css/all.min.css">
     <script src="dist/js/bootstrap.bundle.min.js"></script>
     <title>ADMIN</title>
 </head>
@@ -92,26 +98,27 @@
                 <table class="table table-striped custom-table" id="researchTable">
                     <thead>
                         <tr>
-                            <th class="wrap" onclick="sortTable(0)">Date of Submission</th>
-                            <th onclick="sortTable(1)">Title</th>
-                            <th onclick="sortTable(2)">Main Author</th>
-                            <th onclick="sortTable(3)">Co-Author 1</th>
-                            <th onclick="sortTable(4)">Co-Author 2</th>
-                            <th onclick="sortTable(5)">More Authors</th>
+                            <th class="wrap">Date of Submission</th>
+                            <th>Title</th>
+                            <th>Main Author</th>
+                            <th>Co-Author 1</th>
+                            <th>Co-Author 2</th>
+                            <th>More Authors</th>
                             <th class="wrap">Uploaded Research Paper</th>
                             <th class="wrap">Uploaded Abstract</th>
-                            <th onclick="sortTable(8)">Notifications</th>
+                            <th>Notifications</th>
                             <th class="wrap">Schedule for Proposal Presentation</th>
                             <th class="wrap">Schedule for Final Presentation</th>
-                            <th onclick="sortTable(11)">Research Status</th>
+                            <th>Research Status</th>
                             <th>Edit Access</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
+                    <?php if ($result->num_rows > 0): ?>
                         <?php while ($row = $result->fetch_assoc()): ?>
                             <tr>
-                                <td class="wrap"><?= htmlspecialchars($row['date_of_submission']) ?></td>
+                                <td class="wrap"><?= htmlspecialchars($row['formatted_date_of_submission']) ?></td>
                                 <td class="wrap"><?= htmlspecialchars($row['title']) ?></td>
                                 <td class="wrap"><?= htmlspecialchars($row['main_author']) ?></td>
                                 <td class="wrap"><?= htmlspecialchars($row['co_author_1']) ?></td>
@@ -123,49 +130,48 @@
                                 <td>
                                     <a href='/Root_1/review_admin.php?id=<?= $row['id'] ?>&type=abstract' target='_blank'>View File</a>
                                 </td>
-                                    <form action="update_coor.php" method="POST">
-                                        <input type="hidden" name="id" value="<?= $row['id'] ?>">
-
-                                        <td>
-                                            <select name="notification" class="custom-select">
-                                                <option class="custom-option" value="" disabled selected>Select</option>
-                                                <option class="custom-option" value="For Revision" <?= ($row['notification'] == 'For Revision') ? 'selected' : '' ?>>For Revision</option>
-                                                <option class="custom-option" value="Scheduled for Research Proposal Presentation" <?= ($row['notification'] == 'Scheduled for Research Proposal Presentation') ? 'selected' : '' ?>>Scheduled for Research Proposal Presentation</option>
-                                                <option class="custom-option" value="Scheduled for Final Research Presentation" <?= ($row['notification'] == 'Scheduled for Final Research Presentation') ? 'selected' : '' ?>>Scheduled for Final Research Presentation</option>
-                                                <option class="custom-option" value="Please See Comments" <?= ($row['notification'] == 'Please See Comments') ? 'selected' : '' ?>>Please See Comments</option>
-                                            </select>
-                                        </td>
-
-                                        <td>
-                                            <input type="date" class="custom-date" name="sched_proposal" value="<?= htmlspecialchars($row['sched_proposal']) ?>">
-                                        </td>
-
-                                        <td>
-                                            <input type="date" class="custom-date" name="sched_final" value="<?= htmlspecialchars($row['sched_final']) ?>">
-                                        </td>
-
-                                        <td>
-                                            <select name="research_status" class="custom-select">
-                                                <option class="custom-option" value="" disabled selected>Select</option>
-                                                <option class="custom-option" value="Presented" <?= ($row['research_status'] == 'Presented') ? 'selected' : '' ?>>Presented</option>
-                                                <option class="custom-option" value="Implemented" <?= ($row['research_status'] == 'Implemented') ? 'selected' : '' ?>>Implemented</option>
-                                            </select>
-                                        </td>
-
-                                        <td>
-                                            <label class="switch">
-                                                <input type="checkbox" name="edit_access" value="1" <?= $row['edit_access'] ? 'checked' : '' ?> onchange="this.form.submit()">
-                                                <span class="slider round"></span>
-                                            </label>
-                                            <input type="hidden" name="toggle_edit_access" value="1">
-                                        </td>
-
-                                        <td>
-                                            <button type="submit" name="update_status" class="btn-submit">Save</button>
-                                        </td>
-                                    </form>
+                                <form action="update_coor.php" method="POST">
+                                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                    <td>
+                                        <select name="notification" class="custom-select">
+                                            <option class="custom-option" value="" disabled selected>Select</option>
+                                            <option class="custom-option" value="For Revision" <?= ($row['notification'] == 'For Revision') ? 'selected' : '' ?>>For Revision</option>
+                                            <option class="custom-option" value="Scheduled for Research Proposal Presentation" <?= ($row['notification'] == 'Scheduled for Research Proposal Presentation') ? 'selected' : '' ?>>Scheduled for Research Proposal Presentation</option>
+                                            <option class="custom-option" value="Scheduled for Final Research Presentation" <?= ($row['notification'] == 'Scheduled for Final Research Presentation') ? 'selected' : '' ?>>Scheduled for Final Research Presentation</option>
+                                            <option class="custom-option" value="Please See Comments" <?= ($row['notification'] == 'Please See Comments') ? 'selected' : '' ?>>Please See Comments</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="date" class="custom-date" name="sched_proposal" value="<?= htmlspecialchars($row['sched_proposal']) ?>">
+                                    </td>
+                                    <td>
+                                        <input type="date" class="custom-date" name="sched_final" value="<?= htmlspecialchars($row['sched_final']) ?>">
+                                    </td>
+                                    <td>
+                                        <select name="research_status" class="custom-select">
+                                            <option class="custom-option" value="" disabled selected>Select</option>
+                                            <option class="custom-option" value="Presented" <?= ($row['research_status'] == 'Presented') ? 'selected' : '' ?>>Presented</option>
+                                            <option class="custom-option" value="Implemented" <?= ($row['research_status'] == 'Implemented') ? 'selected' : '' ?>>Implemented</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <label class="switch">
+                                            <input type="checkbox" name="edit_access" value="1" <?= $row['edit_access'] ? 'checked' : '' ?> onchange="this.form.submit()">
+                                            <span class="slider round"></span>
+                                        </label>
+                                        <input type="hidden" name="toggle_edit_access" value="1">
+                                    </td>
+                                    <td>
+                                        <button type="submit" name="update_status" class="btn-submit">Save</button>
+                                    </td>
+                                </form>
                             </tr>
                         <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="13">No submissions found.</td>
+                        </tr>
+                    <?php endif; ?>
                     </tbody>
                 </table>
             </div>
