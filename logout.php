@@ -5,6 +5,6 @@ session_unset();
 
 session_destroy();
 
-header("Location: /Root_1/index.php");
+header("Location: /Root_2/index.php");
 exit();
 ?>

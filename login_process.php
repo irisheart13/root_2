@@ -24,16 +24,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Redirect based on user role
         if ($row['role'] == 'admin') {
-            header("Location: research_coor.php");
+            header("Location: /Root_2/login/research_coor/research_coor.php");
         } else {
-            $department = $row['department'];
-            $program = $row['program'];
-            header("Location: login/$department/$program/index.php");
+            // Redirect students to a single dynamic page
+            header("Location: /Root_2/login/general_user/general_User.php");
         }
         exit();
     } else {
         $_SESSION['error'] = "Invalid username or PIN."; 
-        header("Location: login.php"); 
+        header("Location: index.php"); 
         exit();
     }
 
