@@ -31,7 +31,7 @@
     }
 
     // Construct full file path
-    $file_path = "/Root_2/login/general_user/uploadedFile/$department/$program/uploads/" . $file_name;
+    $file_path = "uploadedFile/$department/$program/uploads/$file_name";
 
     // Fetch comments along with the admin's name
     $sql = "SELECT ac.title, ac.abstract, ac.others, u.username AS reviewer_name
@@ -57,15 +57,15 @@
     <title>Review Document</title>
 
 
-    <link href="/Root_2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="/Root_2/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="/root_2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/root_2/dist/js/bootstrap.bundle.min.js"></script>
 
 </head>
 <style>
     /* Poppins Regular */
     @font-face {
         font-family: 'Poppins';
-        src: url('/Root_2/Poppins/Poppins-Regular.ttf') format('truetype');
+        src: url('/root_2/Poppins/Poppins-Regular.ttf') format('truetype');
         font-weight: 400;
         font-style: normal;
     }
@@ -73,7 +73,7 @@
     /* Poppins Bold */
     @font-face {
         font-family: 'Poppins';
-        src: url('/Root_2/Poppins/Poppins-Bold.ttf') format('truetype');
+        src: url('/root_2/Poppins/Poppins-Bold.ttf') format('truetype');
         font-weight: 700;
         font-style: normal;
     }
@@ -81,7 +81,7 @@
     /* Poppins Italic */
     @font-face {
         font-family: 'Poppins';
-        src: url('/Root_2/Poppins/Poppins-Italic.ttf') format('truetype');
+        src: url('/root_2/Poppins/Poppins-Italic.ttf') format('truetype');
         font-weight: 400;
         font-style: italic;
     }
@@ -89,7 +89,7 @@
     /* Poppins Light */
     @font-face {
         font-family: 'Poppins';
-        src: url('/Root_2/Poppins/Poppins-Light.ttf') format('truetype');
+        src: url('/root_2/Poppins/Poppins-Light.ttf') format('truetype');
         font-weight: 300;
         font-style: normal;
     }
@@ -229,16 +229,6 @@
                 </div>
                 <div class="col-12 col-md-3">
                     <div class="row com_sec">
-                        <!-- <div class="col-12">
-                            <div class="row">
-                                <div col="col-12 custom-name">
-                                    <?= htmlspecialchars($comments['reviewer_name'] ?? 'Unknown Admin') ?>
-                                </div>
-                                <div col="col-12">
-                                    <p class="custom-name">Reviewed by:</p>
-                                </div>
-                            </div>
-                        </div> -->
                         <div class="col-12">
                             <row>
                                 <div col="col-12">

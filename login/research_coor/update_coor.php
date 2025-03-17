@@ -1,6 +1,11 @@
 <?php
 	session_start();
     include '../../conn.php';
+
+    if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
+        header("Location: index.php");
+        exit();
+    }
     
 	// Get admin's department and program from session
     $admin_department = $_SESSION['department']; 

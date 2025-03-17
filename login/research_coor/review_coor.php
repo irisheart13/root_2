@@ -2,6 +2,11 @@
     session_start();
     include '../../conn.php';
 
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+        echo "<script>alert('Error: Admin not logged in. Please log in first.'); window.location.href='login.php';</script>";
+        exit();
+    }
+
     $user_name = htmlspecialchars($_SESSION['username']);
     $department = $_SESSION['department']; 
     $program = $_SESSION['program'];
@@ -30,7 +35,7 @@
     }
 
     // Construct full file path
-    $file_path = "/Root_2/login/general_user/uploadedFile/$department/$program/uploads/" . $file_name;
+    $file_path = "/root_2/login/general_user/uploadedFile/$department/$program/uploads/" . $file_name;
 ?>
 
 
@@ -42,15 +47,15 @@
     <title>Review Document</title>
 
 
-    <link href="/Root_2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="/Root_2/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="/root_2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/root_2/dist/js/bootstrap.bundle.min.js"></script>
 
 </head>
 <style>
     /* Poppins Regular */
     @font-face {
         font-family: 'Poppins';
-        src: url('/Root_2/Poppins/Poppins-Regular.ttf') format('truetype');
+        src: url('/root_2/Poppins/Poppins-Regular.ttf') format('truetype');
         font-weight: 400;
         font-style: normal;
     }
@@ -58,7 +63,7 @@
     /* Poppins Bold */
     @font-face {
         font-family: 'Poppins';
-        src: url('/Root_2/Poppins/Poppins-Bold.ttf') format('truetype');
+        src: url('/root_2/Poppins/Poppins-Bold.ttf') format('truetype');
         font-weight: 700;
         font-style: normal;
     }
@@ -66,7 +71,7 @@
     /* Poppins Italic */
     @font-face {
         font-family: 'Poppins';
-        src: url('/Root_2/Poppins/Poppins-Italic.ttf') format('truetype');
+        src: url('/root_2/Poppins/Poppins-Italic.ttf') format('truetype');
         font-weight: 400;
         font-style: italic;
     }
@@ -74,7 +79,7 @@
     /* Poppins Light */
     @font-face {
         font-family: 'Poppins';
-        src: url('/Root_2/Poppins/Poppins-Light.ttf') format('truetype');
+        src: url('/root_2/Poppins/Poppins-Light.ttf') format('truetype');
         font-weight: 300;
         font-style: normal;
     }
@@ -191,7 +196,7 @@
                 <p>Hello, <?php echo $user_name; ?>!</p>
             </div>
             <div class="col-6 logout">
-                <form action="/Root_2/logout.php" method="post">
+                <form action="/root_2/logout.php" method="post">
                     <button type="submit" class="btn-logout">Logout</button>
                 </form>
             </div>

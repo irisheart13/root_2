@@ -24,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Redirect based on user role
         if ($row['role'] == 'admin') {
+            $_SESSION['admin_id'] = $row['id'];
             header("Location: /Root_2/login/research_coor/research_coor.php");
         } else {
             // Redirect students to a single dynamic page
