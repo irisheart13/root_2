@@ -3,7 +3,7 @@
     include '../../conn.php';
 
     // Verification of user if they are admin
-    if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
+    if (!isset($_SESSION['role']) || $_SESSION['role'] != 'coor') {
         header("Location: index.php");
         exit();
     }

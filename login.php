@@ -29,6 +29,11 @@
             <div class="col-5 col-md-7 mx-auto p-2">
                 <button type="submit" class="btn-login">LOGIN</button>
             </div>
+            <div class="col-12 text-center mt-3">
+                <a href="#" class="text-decoration-none register-link" data-bs-toggle="modal" data-bs-target="#registerModal">
+                    Don't have an account? Register
+                </a>
+            </div>
         </form>
     </div>
 </div>

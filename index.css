@@ -136,13 +136,22 @@ body{
         border-width: 1px;
         border-radius: 10px;
     }
+    .register-link{
+        font-size: 14px;
+    }
+    .modal{
+        color: white !important;
+    }
+    #department, #program{
+        color: white !important;
+    }
     /* LOGIN FORM END */
 /* Login and List of abstract design END */
 
 
 @media (max-width: 576px)  {
 .txt-email{
-    font-size: 9px;
+    font-size: 14px;
 }
 .lnlSection{
     margin-top: 30px;

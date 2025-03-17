@@ -2,8 +2,8 @@
     session_start();
     include '../../conn.php';
 
-    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-        echo "<script>alert('Error: Admin not logged in. Please log in first.'); window.location.href='login.php';</script>";
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'coor') {
+        echo "<script>alert('Error: coor not logged in. Please log in first.'); window.location.href='login.php';</script>";
         exit();
     }
 

@@ -42,7 +42,119 @@
         </section>
         <!-- Login and list of abstract END -->
 
-       
+        <!-- Registration Modal START -->
+        <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">Register</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="register.php" method="POST">
+                    <!-- Full Name -->
+                    <div class="mb-3">
+                        <label for="fullname" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="fullname" name="fullname" placeholder="Last name, First name M.I" required>
+                    </div>
+
+                    <!-- Username -->
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username/Institutional Email</label>
+                        <input type="email" class="form-control" id="username" name="username" pattern="^[a-zA-Z0-9._%+-]+@plmun.edu.ph$" required 
+                            placeholder="example@plmun.edu.ph">
+                        <small class="text-danger d-none" id="emailError">Only @plmun.edu.ph emails are allowed.</small>
+                    </div>
+
+                    <!-- PIN -->
+                    <div class="mb-3">
+                        <label for="pin" class="form-label">PIN</label>
+                        <input type="password" class="form-control" id="pin" name="pin" pattern="\d{4}" required maxlength="4">
+                        <small class="text-danger d-none" id="pinError">PIN must be exactly 4 digits.</small>
+                    </div>
+
+                    <!-- College Department Dropdown -->
+                    <div class="mb-3">
+                        <label for="department" class="form-label">College Department</label>
+                        <select class="form-select" id="department" name="department" required>
+                            <option value="" selected disabled>Select Department</option>
+                            <option value="CITCS">CITCS</option>
+                            <option value="CBA">CBA</option>
+                            <option value="COA">COA</option>
+                            <option value="CTE">CTE</option>
+                            <option value="CAS">CAS</option>
+                            <option value="CCJ">CCJ</option>
+                            <option value="IPPG">IPPG</option>
+                        </select>
+                    </div>
+
+                    <!-- Program Dropdown (Dynamic) -->
+                    <div class="mb-3">
+                        <label for="program" class="form-label">Program</label>
+                        <select class="form-select" id="program" name="program" required>
+                        <option value="" selected disabled>Select Program</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">Register</button>
+                    </form>
+                </div>
+                </div>
+            </div>
+        </div>
+        <!-- Registration Modal END -->      
 	</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const departmentSelect = document.getElementById("department");
+    const programSelect = document.getElementById("program");
+    
+    // Program options based on department
+    const programs = {
+        "CITCS": ["BSCS", "BSIT", "ACT"],
+        "CBA": ["BSBA-HR", "BSBA-MM", "BSBA-OM"],
+        "CTE": ["BEED-ECED", "BEED-SNED", "BEED-GENED", "BSED-ENG", "BSED-FIL", "BSED-PE", "BSED-SCI", "BSED-MATH"],
+        "CAS": ["BSPSY", "BACOMM"],
+        "COA": ["BSA"],
+        "CCJ": ["BSCRIM"],
+        "IPPG": ["BAPOL","BPA"]
+    };
+
+    departmentSelect.addEventListener("change", function () {
+        const selectedDept = this.value;
+        programSelect.innerHTML = `<option value="" disabled selected>Select Program</option>`; // Reset options
+
+        if (programs[selectedDept]) {
+            programs[selectedDept].forEach(program => {
+                let option = document.createElement("option");
+                option.value = program;
+                option.textContent = program;
+                programSelect.appendChild(option);
+            });
+        }
+    });
+
+    // Email validation
+    document.getElementById("username").addEventListener("input", function () {
+        const emailError = document.getElementById("emailError");
+        if (!this.value.endsWith("@plmun.edu.ph")) {
+            emailError.classList.remove("d-none");
+        } else {
+            emailError.classList.add("d-none");
+        }
+    });
+
+    // PIN validation
+    document.getElementById("pin").addEventListener("input", function () {
+        const pinError = document.getElementById("pinError");
+        if (!/^\d{4}$/.test(this.value)) {
+            pinError.classList.remove("d-none");
+        } else {
+            pinError.classList.add("d-none");
+        }
+    });
+});
+</script>
 </body>
 </html>

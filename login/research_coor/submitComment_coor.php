@@ -3,18 +3,18 @@ session_start();
 include '../../conn.php';  
 
 // Debugging: Check if session variables exist
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    echo "<script>alert('Error: Admin not logged in. Please log in first.'); window.location.href='login.php';</script>";
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'coor') {
+    echo "<script>alert('Error: coor not logged in. Please log in first.'); window.location.href='login.php';</script>";
     exit();
 }
 
-if (!isset($_SESSION['admin_id'])) {
-    echo "<script>alert('Error: admin_id is not set in session. Please log in again.'); window.location.href='login.php';</script>";
+if (!isset($_SESSION['coor_id'])) {
+    echo "<script>alert('Error: coor_id is not set in session. Please log in again.'); window.location.href='login.php';</script>";
     exit();
 }
 
 // Store session values after validation
-$admin_id = $_SESSION['admin_id'];
+$coor_id = $_SESSION['coor_id'];
 
 // Debugging: Check session contents
 echo "<pre>";
@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     echo "<script>console.log('File ID: $file_id, Title: $title, Abstract: $abstract, Others: $others');</script>";
 
     // Ensure at least one comment field is filled
-    if (!empty($file_id) && isset($admin_id) && 
+    if (!empty($file_id) && isset($coor_id) && 
         (trim($title) !== '' || trim($abstract) !== '' || trim($others) !== '')) {
 
         // Verify file exists
@@ -47,9 +47,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
 
         if ($result->num_rows > 0) {  
             // Insert comment
-            $sql = "INSERT INTO admin_comments (title, abstract, others, file_id, admin_id) VALUES (?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO admin_comments (title, abstract, others, file_id, coor_id) VALUES (?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("sssii", $title, $abstract, $others, $file_id, $admin_id);
+            $stmt->bind_param("sssii", $title, $abstract, $others, $file_id, $coor_id);
 
             if ($stmt->execute()) {
                 echo "<script>

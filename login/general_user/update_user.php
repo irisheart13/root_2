@@ -2,6 +2,12 @@
     session_start();
     include '../../conn.php';
 
+    // Check if user is logged in
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
+        header("Location: general_User.php");
+        exit();
+    }
+
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $deparment = htmlspecialchars($_SESSION['department']);
         $program = htmlspecialchars($_SESSION['program']);

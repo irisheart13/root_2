@@ -3,7 +3,7 @@
     include '../../conn.php'; 
 
     // Check if user is logged in
-    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student') {
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
         header("Location: index.php");
         exit();
     }

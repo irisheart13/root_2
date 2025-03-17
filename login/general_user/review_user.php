@@ -2,6 +2,12 @@
     session_start();
     include '../../conn.php';
 
+    // Check if user is logged in
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
+        header("Location: general_User.php");
+        exit();
+    }
+
     $user_name = htmlspecialchars($_SESSION['username']);
     $department = htmlspecialchars($_SESSION['department']);
     $program = htmlspecialchars($_SESSION['program']);
@@ -36,7 +42,7 @@
     // Fetch comments along with the admin's name
     $sql = "SELECT ac.title, ac.abstract, ac.others, u.username AS reviewer_name
             FROM admin_comments ac
-            LEFT JOIN tbl_user u ON ac.admin_id = u.id
+            LEFT JOIN tbl_user u ON ac.coor_id = u.id
             WHERE ac.file_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $id);

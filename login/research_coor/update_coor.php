@@ -2,14 +2,14 @@
 	session_start();
     include '../../conn.php';
 
-    if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
+    if (!isset($_SESSION['role']) || $_SESSION['role'] != 'coor') {
         header("Location: index.php");
         exit();
     }
     
-	// Get admin's department and program from session
-    $admin_department = $_SESSION['department']; 
-    $admin_program = $_SESSION['program'];
+	// Get coor's department and program from session
+    $coor_department = $_SESSION['department']; 
+    $coor_program = $_SESSION['program'];
 
     // Handle updating status (without affecting toggle switch)
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
@@ -23,7 +23,7 @@
         $stmt = $conn->prepare($sql);
         
         if ($stmt) {
-            $stmt->bind_param("ssssiss", $notif, $sched_proposal, $sched_final, $research_status, $id, $admin_department, $admin_program);
+            $stmt->bind_param("ssssiss", $notif, $sched_proposal, $sched_final, $research_status, $id, $coor_department, $coor_program);
             if ($stmt->execute()) {
                 echo "<script>alert('Record updated successfully!'); window.location.href='research_coor.php';</script>";
                 exit();
