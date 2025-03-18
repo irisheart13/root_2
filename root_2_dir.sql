@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 18, 2025 at 09:44 AM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Generation Time: Mar 18, 2025 at 05:52 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -88,7 +88,9 @@ INSERT INTO `tbl_fileupload` (`id`, `date_of_submission`, `username`, `departmen
 
 CREATE TABLE `tbl_user` (
   `id` int(50) NOT NULL,
-  `fullname` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `first_name` varchar(50) NOT NULL,
+  `middle_initial` char(1) NOT NULL,
   `username` varchar(50) NOT NULL,
   `role` varchar(50) NOT NULL,
   `pin` varchar(50) NOT NULL,
@@ -100,19 +102,19 @@ CREATE TABLE `tbl_user` (
 -- Dumping data for table `tbl_user`
 --
 
-INSERT INTO `tbl_user` (`id`, `fullname`, `username`, `role`, `pin`, `department`, `program`) VALUES
-(1, '', 'prog_head_ACT', 'prog_head', '1234', 'CITCS', 'ACT'),
-(2, '', 'prog_head_BSCS', 'prog_head', '1234', 'CITCS', 'BSCS'),
-(3, '', 'prog__head_BSIT', 'prog_head', '1234', 'CITCS', 'BSIT'),
-(4, '', 'coor_BSIT', 'coor', '0000', 'CITCS', 'BSIT'),
-(5, '', 'coor_BSCS', 'coor', '0000', 'CITCS', 'BSCS'),
-(6, '', 'coor_ACT', 'coor', '0000', 'CITCS', 'ACT'),
-(7, '', 'user1_act@plmun.edu.ph', 'user', '1234', 'CITCS', 'ACT'),
-(8, '', 'user2_bscs@plmun.edu.ph', 'user', '1234', 'CITCS', 'BSCS'),
-(9, '', 'user3_bsit@plmun.edu.ph', 'user', '1234', 'CITCS', 'BSIT'),
-(10, 'Prado, Iris Heart A.', 'pradoirisheart_bscs@plmun.edu.ph', 'user', '1234', 'CITCS', 'BSCS'),
-(11, '', 'dean_CITCS', 'dean', '0000', 'CITCS', ''),
-(12, '', 'dean_CBA', 'dean', '0000', 'CBA', '');
+INSERT INTO `tbl_user` (`id`, `last_name`, `first_name`, `middle_initial`, `username`, `role`, `pin`, `department`, `program`) VALUES
+(1, '', '', '', 'prog_head_ACT', 'prog_head', '0000', 'CITCS', 'ACT'),
+(2, '', '', '', 'prog_head_BSCS', 'prog_head', '0000', 'CITCS', 'BSCS'),
+(3, '', '', '', 'prog__head_BSIT', 'prog_head', '0000', 'CITCS', 'BSIT'),
+(4, '', '', '', 'coor_BSIT', 'coor', '0000', 'CITCS', 'BSIT'),
+(5, '', '', '', 'coor_BSCS', 'coor', '0000', 'CITCS', 'BSCS'),
+(6, '', '', '', 'coor_ACT', 'coor', '0000', 'CITCS', 'ACT'),
+(7, '', '', '', 'user1_act@plmun.edu.ph', 'user', '1234', 'CITCS', 'ACT'),
+(8, '', '', '', 'user2_bscs@plmun.edu.ph', 'user', '1234', 'CITCS', 'BSCS'),
+(9, '', '', '', 'user3_bsit@plmun.edu.ph', 'user', '1234', 'CITCS', 'BSIT'),
+(10, '', '', '', 'dean_CITCS', 'dean', '0000', 'CITCS', ''),
+(11, '', '', '', 'dean_CBA', 'dean', '0000', 'CBA', ''),
+(15, 'Prado', 'Iris Heart', 'A', 'pradoirisheart_bscs@plmun.edu.ph', 'user', '1234', 'CITCS', 'BSCS');
 
 --
 -- Indexes for dumped tables
@@ -158,7 +160,7 @@ ALTER TABLE `tbl_fileupload`
 -- AUTO_INCREMENT for table `tbl_user`
 --
 ALTER TABLE `tbl_user`
-  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Constraints for dumped tables

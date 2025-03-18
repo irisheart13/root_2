@@ -107,6 +107,7 @@ body{
 .tableSection{
     margin-top: 25px;
     margin-bottom: 20px;
+    font-size: 14px !important;
 }
     .table-responsive, 
     .custom-table {
@@ -128,7 +129,7 @@ body{
         background-color: #80B918 !important;
     }
     .custom-table th, .custom-table td {
-        width: 150px; 
+        width: 110px; 
         text-overflow: ellipsis; 
         overflow: hidden;
     }

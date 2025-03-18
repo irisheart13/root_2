@@ -72,12 +72,12 @@ body{
 }
 .search {
     width: 100%; 
+    border: #80B918 1px solid;
 }
 .input-search {
     width: 100%;  
     max-width: 100%; 
-    border: none; 
-    border-bottom: 2px solid #80B918; 
+    border: none;  
     
     outline: none; 
     background-color: transparent;
@@ -99,6 +99,10 @@ body{
 /*Nav Bar Design END*/
 
 /* Filter Design START */
+.custom-select{
+    font-size: 14px !important;
+    border-radius: 0px !important;
+}
 option{
     font-size: 14px;
 }

@@ -51,52 +51,72 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="register.php" method="POST">
-                    <!-- Full Name -->
-                    <div class="mb-3">
-                        <label for="fullname" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="fullname" name="fullname" placeholder="Last name, First name M.I" required>
-                    </div>
+                    <form action="register.php" method="POST" onsubmit="return validatePIN()">
+                        <!-- Last Name -->
+                        <div class="mb-3">
+                            <label for="lastname" class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Enter Last Name" required>
+                        </div>
 
-                    <!-- Username -->
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username/Institutional Email</label>
-                        <input type="email" class="form-control" id="username" name="username" pattern="^[a-zA-Z0-9._%+-]+@plmun.edu.ph$" required 
-                            placeholder="example@plmun.edu.ph">
-                        <small class="text-danger d-none" id="emailError">Only @plmun.edu.ph emails are allowed.</small>
-                    </div>
+                        <!-- First Name -->
+                        <div class="mb-3">
+                            <label for="firstname" class="form-label">First Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Enter First Name" required>
+                        </div>
 
-                    <!-- PIN -->
-                    <div class="mb-3">
-                        <label for="pin" class="form-label">PIN</label>
-                        <input type="password" class="form-control" id="pin" name="pin" pattern="\d{4}" required maxlength="4">
-                        <small class="text-danger d-none" id="pinError">PIN must be exactly 4 digits.</small>
-                    </div>
+                        <!-- Middle Initial -->
+                        <div class="mb-3">
+                            <label for="middleinitial" class="form-label">Middle Initial (Optional)</label>
+                            <input type="text" class="form-control" id="middle_initial" name="middle_initial" placeholder="Enter Middle Initial" maxlength="1">
+                        </div>
 
-                    <!-- College Department Dropdown -->
-                    <div class="mb-3">
-                        <label for="department" class="form-label">College Department</label>
-                        <select class="form-select" id="department" name="department" required>
-                            <option value="" selected disabled>Select Department</option>
-                            <option value="CITCS">CITCS</option>
-                            <option value="CBA">CBA</option>
-                            <option value="COA">COA</option>
-                            <option value="CTE">CTE</option>
-                            <option value="CAS">CAS</option>
-                            <option value="CCJ">CCJ</option>
-                            <option value="IPPG">IPPG</option>
-                        </select>
-                    </div>
+                        <!-- Username -->
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Institutional Email</label>
+                            <input type="email" class="form-control" id="username" name="username" 
+                                pattern="^[a-zA-Z0-9._%+-]+@plmun.edu.ph$" required 
+                                placeholder="example@plmun.edu.ph">
+                            <small class="text-danger d-none" id="emailError">Only @plmun.edu.ph emails are allowed.</small>
+                        </div>
 
-                    <!-- Program Dropdown (Dynamic) -->
-                    <div class="mb-3">
-                        <label for="program" class="form-label">Program</label>
-                        <select class="form-select" id="program" name="program" required>
-                        <option value="" selected disabled>Select Program</option>
-                        </select>
-                    </div>
+                        <!-- PIN -->
+                        <div class="mb-3">
+                            <label for="pin" class="form-label">PIN</label>
+                            <input type="password" class="form-control" id="pin" name="pin" pattern="\d{4}" required maxlength="4">
+                            <small class="text-danger d-none" id="pinError">PIN must be exactly 4 digits.</small>
+                        </div>
 
-                    <button type="submit" class="btn btn-success w-100">Register</button>
+                        <!-- Confirmation PIN -->
+                        <div class="mb-3">
+                            <label for="pin" class="form-label">PIN</label>
+                            <input type="password" id="confirm_pin" name="confirm_pin" placeholder="Confirm 4-digit PIN" required>
+                            <small class="text-danger d-none" id="pinError">PIN must be exactly 4 digits.</small>
+                        </div>
+
+                        <!-- College Department Dropdown -->
+                        <div class="mb-3">
+                            <label for="department" class="form-label">College Department</label>
+                            <select class="form-select" id="department" name="department" required>
+                                <option value="" selected disabled>Select Department</option>
+                                <option value="CITCS">CITCS</option>
+                                <option value="CBA">CBA</option>
+                                <option value="COA">COA</option>
+                                <option value="CTE">CTE</option>
+                                <option value="CAS">CAS</option>
+                                <option value="CCJ">CCJ</option>
+                                <option value="IPPG">IPPG</option>
+                            </select>
+                        </div>
+
+                        <!-- Program Dropdown (Dynamic) -->
+                        <div class="mb-3">
+                            <label for="program" class="form-label">Program</label>
+                            <select class="form-select" id="program" name="program" required>
+                                <option value="" selected disabled>Select Program</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">Register</button>
                     </form>
                 </div>
                 </div>
@@ -154,6 +174,18 @@ document.addEventListener("DOMContentLoaded", function () {
             pinError.classList.add("d-none");
         }
     });
+
+    // Confirmation of the pin
+    function validatePIN() {
+        const pin = document.getElementById('pin').value;
+        const confirmPin = document.getElementById('confirm_pin').value;
+
+        if (pin !== confirmPin) {
+            alert('PIN and Confirm PIN do not match!');
+            return false;
+        }
+        return true;
+    }
 });
 </script>
 </body>

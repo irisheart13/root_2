@@ -27,6 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['department'] = $row['department'];
         $_SESSION['program'] = $row['program'];
         $_SESSION['role'] = $row['role']; 
+        $_SESSION['first_name'] = $row['first_name'];
 
         // Redirect based on user role
         if ($row['role'] == 'coor') {

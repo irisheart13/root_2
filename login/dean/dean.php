@@ -80,6 +80,8 @@ $total_pages = max(ceil($total_rows / $limit), 1);
     <link href="/Root_2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="/Root_2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <link rel="stylesheet" href="/Root_2/dist/fontawesome-6.7.2/css/all.min.css">
+
     <title><?php echo $user_department; ?> </title>
 </head>
 <body>
@@ -87,22 +89,15 @@ $total_pages = max(ceil($total_rows / $limit), 1);
         <!--Nav Section START-->
         <section class="navBarSection">
             <div class="row p-1">
-                <!-- Hello -->
-                <div class="col-4 order-1 col-md-2 order-md-1 hello p-0 ps-md-2 d-flex align-items-center">
+                <div class="col-6 col-md-6 p-0 ps-md-2 d-flex align-items-center hello">
                     <span class="txt-hello">Hello,</span>
                     <span class="txt-username"><?php echo $user_name; ?>!</span>
                 </div>
 
-                <!-- Logout (Comes second on mobile, last on desktop) -->
-                <div class="col-4 offset-4 order-2 col-md-2 order-md-3 offset-md-0 d-flex align-items-center justify-content-end">
+                <div class="col-6 col-md-6  d-flex align-items-center justify-content-end">
                     <form action="/Root_2/logout.php" method="post">
                         <button type="submit" class="btn-logout">Logout</button>
                     </form>
-                </div>
-
-                <!-- Search (New row on mobile, in between on desktop) -->
-                <div class="col-6 order-3 col-md-2 order-md-2 d-flex align-items-center justify-content-center mx-auto search">
-                    <input type="text" class="input-search fa-search" id="searchInput" placeholder="Search..." onkeyup="filterTable()">
                 </div>
             </div>
         </section>
@@ -110,23 +105,31 @@ $total_pages = max(ceil($total_rows / $limit), 1);
 
         <!--filter START-->
         <section class="filterSection mt-3">
-            <div class="row">
-                <div class="col-12">
-                    <span class="txt-filter">Select filter:</span>
+            <div class="row px-3">
+                <!-- Search (1st Row in Mobile, 2nd Row right in wider screen) -->
+                <div class="col-5 order-1 col-md-2 offset-md-4 order-md-5 mt-1 p-0 d-flex align-items-center justify-content-md-end search">
+                    <i class="fa fa-search p-1"></i>
+                    <input type="text" class="input-search fa-search" id="searchInput" placeholder="Search..." onkeyup="filterTable()">
                 </div>
 
-                <div class="col-4 col-md-2 mt-1">
-                    <select class="form-select" id="programFilter" onchange="filterTable()">
-                        <option value="" disabled selected>based on Program:</option>
+                <!-- Select label (2nd Row in Mobile, 1st Row in Wider screen) -->
+                <div class="col-12 p-0 mt-2 order-2 order-md-1">
+                    <span class="txt-filter">Select filter based on:</span>
+                </div>
+
+                <!-- Selections 2nd Row -->
+                <div class="col-3 order-3 col-md-2 mt-1 p-0 order-md-2 g-2">
+                    <select class="form-select custom-select" id="programFilter" onchange="filterTable()">
+                        <option value="" disabled selected>Program:</option>
                         <?php foreach ($allowedPrograms as $program): ?>
                             <option value="<?= htmlspecialchars($program) ?>"><?= htmlspecialchars($program) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
-                <div class="col-4 col-md-2 mt-1">
-                    <select class="form-select" id="notificationFilter" onchange="filterTable()">
-                        <option value="" disabled selected>based on Research Progress:</option>
+                <div class="col-3 order-4 col-md-2 mt-1 p-0 order-md-3">
+                    <select class="form-select custom-select" id="notificationFilter" onchange="filterTable()">
+                        <option value="" disabled selected>Research Progress:</option>
                         <option value="For Revision">For Revision</option>
                         <option value="Scheduled for Research Proposal Presentation">Scheduled for Research Proposal Presentation</option>
                         <option value="Scheduled for Final Presentation">Scheduled for Final Presentation</option>
@@ -134,13 +137,13 @@ $total_pages = max(ceil($total_rows / $limit), 1);
                     </select>
                 </div>
 
-                <div class="col-4 col-md-2 mt-1">
-                    <select class="form-select" id="statusFilter" onchange="filterTable()">
-                        <option value="" disabled selected>based on Research Status:</option>
+                <div class="col-3 order-5 col-md-2 mt-1 p-0 order-md-4">
+                    <select class="form-select custom-select" id="statusFilter" onchange="filterTable()">
+                        <option value="" disabled selected>Research Status:</option>
                         <option value="Presented">Presented</option>
                         <option value="Implemented">Implemented</option>
                     </select>
-                </div>         
+                </div>           
             </div>
         </section>
         <!--filter END-->

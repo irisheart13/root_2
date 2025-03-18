@@ -21,7 +21,7 @@
                 </div>
             </div>
             <div class="col-10 col-md-10 p-2 mx-auto">
-                <input type="text" name="username" placeholder="USERNAME" class="form-control text-center custom-input" required>
+                <input type="text" name="username" placeholder="USERNAME/EMAIL" class="form-control text-center custom-input" required>
             </div>
             <div class="col-10 col-md-10 p-2 mx-auto">
                 <input type="password" name="pin" placeholder="PIN" class="form-control text-center custom-input" required>

@@ -10,6 +10,7 @@
 
     $user_name = htmlspecialchars($_SESSION['username']);
     $program = htmlspecialchars($_SESSION['program']);
+    $display_name = htmlspecialchars($_SESSION['first_name']);
 
     // Pagination
     $limit = 5;
@@ -65,7 +66,7 @@
                 <!-- Hello -->
                 <div class="col-4 order-1 col-md-2 order-md-1 hello p-0 ps-md-2 d-flex align-items-center">
                     <span class="txt-hello">Hello,</span>
-                    <span class="txt-username"><?php echo $user_name; ?>!</span>
+                    <span class="txt-username"><?php echo $display_name; ?>!</span>
                 </div>
 
                 <!-- Logout (Comes second on mobile, last on desktop) -->
@@ -88,7 +89,7 @@
             <form method="POST" enctype="multipart/form-data" action="submitFile_user.php">
                 <div class="row">
                     <!--Research title START-->
-                    <div class="col-12 col-md-9 mx-md-auto">
+                    <div class="col-11 col-md-9 mx-auto">
                         <div class="row">
                             <div class="col-4 col-md-3 d-flex align-items-center justify-content-center p-0 custom-label">
                                 <span class="wrap">Research Title</span>
@@ -101,7 +102,7 @@
                     <!--Research title END-->
 
                     <!--Main Author START-->
-                    <div class="col-12 col-md-9 mx-md-auto">
+                    <div class="col-11 col-md-9 mx-auto">
                         <div class="row">
                             <div class="col-4 col-md-3 d-flex align-items-center justify-content-center p-0 custom-label">
                                 <span class="wrap">Main Author</span>
@@ -114,7 +115,7 @@
                     <!--Main Author END-->
 
                     <!--Co-Author 1 START-->
-                    <div class="col-12 col-md-9 mx-md-auto">
+                    <div class="col-11 col-md-9 mx-auto">
                         <div class="row">
                             <div class="col-4 col-md-3 d-flex align-items-center justify-content-center p-0 custom-label">
                                 <span class="wrap">Co-author</span>
@@ -127,7 +128,7 @@
                     <!--Co-Author 1 END-->
 
                     <!--Co-Author 2 START-->
-                    <div class="col-12 col-md-9 mx-md-auto">
+                    <div class="col-11 col-md-9 mx-auto">
                         <div class="row">
                             <div class="col-4 col-md-3 d-flex align-items-center justify-content-center p-0 custom-label">
                                 <span class="wrap">Co-author</span>
@@ -140,7 +141,7 @@
                     <!--Co-Author 2 END-->
 
                     <!--Others START-->
-                    <div class="col-12 col-md-9 mx-md-auto">
+                    <div class="col-11 col-md-9 mx-auto">
                         <div class="row">
                             <div class="col-4 col-md-3 d-flex align-items-center justify-content-center p-0 custom-label">
                                 <span class="wrap">More Author</span>
@@ -153,7 +154,7 @@
                     <!--Others 2 END-->
 
                     <!--Completed Research Paper START-->
-                    <div class="col-12 col-md-9 mx-md-auto">
+                    <div class="col-11 col-md-9 mx-auto">
                         <div class="row">
                             <div class="col-12 col-md-6 d-flex align-items-center justify-content-center p-0 custom-label">
                                 <span class="wrap">Attach completed research paper</span>
@@ -166,20 +167,20 @@
                     <!--Completed Research Paper END-->
 
                     <!--Abstract START-->
-                    <div class="col-12 col-md-9 mx-md-auto">
+                    <div class="col-11 col-md-9 mx-auto">
                         <div class="row">
                             <div class="col-12 col-md-6 d-flex align-items-center justify-content-center p-0 custom-label">
                                 <span class="wrap">Attach abstract</span>
                             </div>
                             <div class="col-12 col-md-6 d-flex align-items-center p-0 custom-input">
-                                <input type="file" name="file_abstract" id="file_abstract" class="form-control custom-input" <?php echo isset($_POST['submission_id']) ? '' : 'required'; ?> required>
+                                <input type="file" name="file_abstract" id="file_abstract" class="form-control custom-fileUpload" <?php echo isset($_POST['submission_id']) ? '' : 'required'; ?> required>
                             </div>
                         </div> 
                     </div>
                     <!--Abstract END-->
 
                     <!--Submit START-->
-                    <div class="col-12 col-md-9 mx-md-auto">
+                    <div class="col-12 col-md-9 mx-auto">
                         <div class="row">
                             <div class="col-4 mx-auto col-md-2 mx-md-auto p-0 d-flex align-items-center justify-content-center">
                                 <button type="submit" name="submit" class="btn-submit">SUBMIT</button>
