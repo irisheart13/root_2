@@ -44,6 +44,9 @@
     $total_query->close();
     
     $total_pages = max(ceil($total_rows / $limit), 1);
+
+    $conn->close();
+
 ?>
 
 
@@ -57,7 +60,7 @@
     <link href="/Root_2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="/Root_2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <title><?php echo $program; ?></title>
+    <title><?php echo $progHead_program; ?></title>
 </head>
 <body>
     <div class="container-fluid main p-0">
@@ -85,6 +88,34 @@
         </section>
         <!--Nav Section END-->
 
+        <!--filter START-->
+        <section class="filterSection mt-3">
+            <div class="row">
+                <div class="col-12">
+                    <span class="txt-filter">Select filter:</span>
+                </div>
+                <div class="col-4 col-md-2 mt-1">
+                    <select class="form-select" id="notificationFilter" onchange="filterTable()">
+                        <option value="" disabled selected>based on Research Progress:</option>
+                        <option value="For Revision">For Revision</option>
+                        <option value="Scheduled for Research Proposal Presentation">Scheduled for Research Proposal Presentation</option>
+                        <option value="Scheduled for Final Presentation">Scheduled for Final Presentation</option>
+                        <option value="Please see comments">Please see comments</option>
+                    </select>
+                </div>
+
+                <div class="col-4 col-md-2 mt-1">
+                    <select class="form-select" id="statusFilter" onchange="filterTable()">
+                        <option value="" disabled selected>based on Research Status:</option>
+                        <option value="Presented">Presented</option>
+                        <option value="Implemented">Implemented</option>
+                    </select>
+                </div>         
+            </div>
+        </section>
+        <!--filter END-->
+
+        <!-- Table START -->
         <section class="tableSection">
             <div class="table-responsive">
                     <table class="table table-striped custom-table"  id="researchTable">
@@ -165,23 +196,34 @@
                     </ul>
                 </nav>
             </div>
-            <!--Uploaded File Dashboard END-->
         </section>
+        <!-- Table END -->
     </div>
 <script>
-    // Script for search function
+    //Filter Function
     function filterTable() {
-        let input = document.getElementById("searchInput").value.toLowerCase();
-        let table = document.getElementById("researchTable");
-        let rows = table.getElementsByTagName("tr");
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+        const notificationFilter = document.getElementById('notificationFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const table = document.getElementById('researchTable');
+        const trs = table.getElementsByTagName('tr');
 
-        for (let i = 1; i < rows.length; i++) {
-            let cells = rows[i].getElementsByTagName("td");
-            let rowText = "";
-            for (let j = 0; j < cells.length; j++) {
-                rowText += cells[j].textContent.toLowerCase();
+        for (let i = 1; i < trs.length; i++) { // Start at 1 to skip table header
+            const tds = trs[i].getElementsByTagName('td');
+            let textContent = trs[i].textContent.toLowerCase();
+
+            // Apply search input filter (searches across the row)
+            let searchMatch = textContent.includes(searchInput);
+
+            // Apply dropdown filters (exact match)
+            let notificationMatch = !notificationFilter || tds[8].textContent.trim() === notificationFilter;
+            let statusMatch = !statusFilter || tds[11].textContent.trim() === statusFilter;
+
+            if (searchMatch && notificationMatch && statusMatch) {
+                trs[i].style.display = '';
+            } else {
+                trs[i].style.display = 'none';
             }
-            rows[i].style.display = rowText.includes(input) ? "" : "none";
         }
     }
 </script>

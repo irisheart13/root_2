@@ -1,17 +1,17 @@
 <?php
-session_start(); 
-include '../../conn.php'; 
+session_start();
+include '../../conn.php';
 
-// Check if user is logged in
+// Check if user is logged in as dean
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dean') {
     header("Location: index.php");
     exit();
 }
 
 $user_name = htmlspecialchars($_SESSION['username']);
-$user_department = $_SESSION['department']; 
+$user_department = $_SESSION['department'];
 
-// Define department-program mapping
+// Department to program mapping
 $departmentPrograms = [
     "CITCS" => ["BSCS", "BSIT", "ACT"],
     "CBA" => ["BSBA-HR", "BSBA-MM", "BSBA-OM"],
@@ -27,63 +27,45 @@ $limit = 5;
 $page = isset($_GET['page']) && (int)$_GET['page'] > 0 ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-if (isset($departmentPrograms[$user_department])) {
-    $allowedPrograms = $departmentPrograms[$user_department];
-
-    // Create placeholders for 'IN' clause (e.g., ?, ?, ?)
-    $placeholders = implode(',', array_fill(0, count($allowedPrograms), '?'));
-
-    // Prepare SQL query
-    $sql = "SELECT id, 
-                DATE_FORMAT(date_of_submission, '%b %d, %Y %h:%i %p') AS formatted_date_of_submission, 
-                program, title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, notification, 
-                DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, 
-                DATE_FORMAT(sched_final, '%b %d, %Y') AS formatted_sched_final, 
-                research_status, edit_access
-            FROM tbl_fileUpload 
-            WHERE department = ? AND program IN ($placeholders)
-            ORDER BY date_of_submission DESC 
-            LIMIT ? OFFSET ?";
-
-    $stmt = $conn->prepare($sql);
-
-    if ($stmt) {
-        // Build parameter type string dynamically
-        $types = "s" . str_repeat("s", count($allowedPrograms)) . "ii";  // department (s) + programs (s * n) + limit (i) + offset (i)
-        
-        // Build parameters array
-        $params = array_merge([$user_department], $allowedPrograms, [$limit, $offset]);
-
-        // Bind parameters dynamically
-        $stmt->bind_param($types, ...$params);
-
-        // Execute the statement
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-    } else {
-        die("SQL Error: " . $conn->error);
-    }
-
-    // Fetch total records for pagination
-    $total_sql = "SELECT COUNT(*) FROM tbl_fileUpload WHERE department = ? AND program IN ($placeholders)";
-    $total_stmt = $conn->prepare($total_sql);
-
-    if ($total_stmt) {
-        // Bind dynamically for total count query
-        $total_stmt->bind_param($types, ...$params);
-        $total_stmt->execute();
-        $total_stmt->bind_result($total_rows);
-        $total_stmt->fetch();
-        $total_stmt->close();
-    } else {
-        $total_rows = 0;
-    }
-
-    $total_pages = max(ceil($total_rows / $limit), 1);
-} else {
+if (!isset($departmentPrograms[$user_department])) {
     die("Unauthorized access");
 }
+
+$allowedPrograms = $departmentPrograms[$user_department];
+$placeholders = implode(',', array_fill(0, count($allowedPrograms), '?'));
+
+// Fetch data query
+$sql = "SELECT id, 
+            DATE_FORMAT(date_of_submission, '%b %d, %Y %h:%i %p') AS formatted_date_of_submission, 
+            program, title, main_author, co_author_1, co_author_2, others, 
+            file_research_paper, file_abstract, notification, 
+            DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, 
+            DATE_FORMAT(sched_final, '%b %d, %Y') AS formatted_sched_final, 
+            research_status
+        FROM tbl_fileUpload
+        WHERE department = ? AND program IN ($placeholders)
+        ORDER BY date_of_submission DESC
+        LIMIT ? OFFSET ?";
+
+$stmt = $conn->prepare($sql);
+if (!$stmt) die("SQL Error: " . $conn->error);
+
+$types = "s" . str_repeat("s", count($allowedPrograms)) . "ii";
+$params = array_merge([$user_department], $allowedPrograms, [$limit, $offset]);
+$stmt->bind_param($types, ...$params);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Fetch total records
+$total_sql = "SELECT COUNT(*) FROM tbl_fileUpload WHERE department = ? AND program IN ($placeholders)";
+$total_stmt = $conn->prepare($total_sql);
+$total_stmt->bind_param("s" . str_repeat("s", count($allowedPrograms)), $user_department, ...$allowedPrograms);
+$total_stmt->execute();
+$total_stmt->bind_result($total_rows);
+$total_stmt->fetch();
+$total_stmt->close();
+
+$total_pages = max(ceil($total_rows / $limit), 1);
 ?>
 
 
@@ -94,7 +76,7 @@ if (isset($departmentPrograms[$user_department])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="program_head.css" rel="stylesheet">
+    <link href="dean.css" rel="stylesheet">
     <link href="/Root_2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="/Root_2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -126,6 +108,45 @@ if (isset($departmentPrograms[$user_department])) {
         </section>
         <!--Nav Section END-->
 
+        <!--filter START-->
+        <section class="filterSection mt-3">
+            <div class="row">
+                <div class="col-12">
+                    <span class="txt-filter">Select filter:</span>
+                </div>
+
+                <div class="col-4 col-md-2 mt-1">
+                    <select class="form-select" id="programFilter" onchange="filterTable()">
+                        <option value="" disabled selected>based on Program:</option>
+                        <?php foreach ($allowedPrograms as $program): ?>
+                            <option value="<?= htmlspecialchars($program) ?>"><?= htmlspecialchars($program) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="col-4 col-md-2 mt-1">
+                    <select class="form-select" id="notificationFilter" onchange="filterTable()">
+                        <option value="" disabled selected>based on Research Progress:</option>
+                        <option value="For Revision">For Revision</option>
+                        <option value="Scheduled for Research Proposal Presentation">Scheduled for Research Proposal Presentation</option>
+                        <option value="Scheduled for Final Presentation">Scheduled for Final Presentation</option>
+                        <option value="Please see comments">Please see comments</option>
+                    </select>
+                </div>
+
+                <div class="col-4 col-md-2 mt-1">
+                    <select class="form-select" id="statusFilter" onchange="filterTable()">
+                        <option value="" disabled selected>based on Research Status:</option>
+                        <option value="Presented">Presented</option>
+                        <option value="Implemented">Implemented</option>
+                    </select>
+                </div>         
+            </div>
+        </section>
+        <!--filter END-->
+
+
+        <!--Table START-->
         <section class="tableSection">
             <div class="table-responsive">
                     <table class="table table-striped custom-table"  id="researchTable">
@@ -134,16 +155,16 @@ if (isset($departmentPrograms[$user_department])) {
                                 <th class="wrap">Date of Submission</th>
                                 <th>Program</th>
                                 <th>Title</th>
-                                <th>Main Author</th>
-                                <th>Co-Author 1</th>
-                                <th>Co-Author 2</th>
-                                <th>More Authors</th>
+                                <th class="wrap">Main Author</th>
+                                <th class="wrap">Co-Author 1</th>
+                                <th class="wrap">Co-Author 2</th>
+                                <th class="wrap">More Authors</th>
                                 <th class="wrap">Uploaded Research Paper</th>
                                 <th class="wrap">Uploaded Abstract</th>
-                                <th>Notifications</th>
+                                <th class="wrap">Notifications</th>
                                 <th class="wrap">Schedule for Proposal Presentation</th>
                                 <th class="wrap">Schedule for Final Presentation</th>
-                                <th>Research Status</th>
+                                <th class="wrap">Research Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -208,25 +229,40 @@ if (isset($departmentPrograms[$user_department])) {
                     </ul>
                 </nav>
             </div>
-            <!--Uploaded File Dashboard END-->
         </section>
+        <!--Table END-->
     </div>
 <script>
-    // Script for search function
+    //Filter Function
     function filterTable() {
-        let input = document.getElementById("searchInput").value.toLowerCase();
-        let table = document.getElementById("researchTable");
-        let rows = table.getElementsByTagName("tr");
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+        const programFilter = document.getElementById('programFilter').value;
+        const notificationFilter = document.getElementById('notificationFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const table = document.getElementById('researchTable');
+        const trs = table.getElementsByTagName('tr');
 
-        for (let i = 1; i < rows.length; i++) {
-            let cells = rows[i].getElementsByTagName("td");
-            let rowText = "";
-            for (let j = 0; j < cells.length; j++) {
-                rowText += cells[j].textContent.toLowerCase();
+        for (let i = 1; i < trs.length; i++) { // Start at 1 to skip table header
+            const tds = trs[i].getElementsByTagName('td');
+            let textContent = trs[i].textContent.toLowerCase();
+
+            // Apply search input filter (searches across the row)
+            let searchMatch = textContent.includes(searchInput);
+
+            // Apply dropdown filters (exact match)
+            let programMatch = !programFilter || tds[1].textContent.trim() === programFilter;
+            let notificationMatch = !notificationFilter || tds[9].textContent.trim() === notificationFilter;
+            let statusMatch = !statusFilter || tds[12].textContent.trim() === statusFilter;
+
+            // Show row if all filters match
+            if (searchMatch && programMatch && notificationMatch && statusMatch) {
+                trs[i].style.display = '';
+            } else {
+                trs[i].style.display = 'none';
             }
-            rows[i].style.display = rowText.includes(input) ? "" : "none";
         }
     }
 </script>
+
 </body>
 </html>
