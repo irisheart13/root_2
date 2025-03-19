@@ -19,7 +19,7 @@
     
     $id = intval($_GET['id']);
     $type = $_GET['type']; // either "research" or "abstract"
-    
+
     // Fetch file path from database
     $query = $conn->prepare("SELECT file_research_paper, file_abstract FROM tbl_fileUpload WHERE id = ?");
     $query->bind_param("i", $id);
@@ -28,16 +28,19 @@
     $query->bind_result($file_research_paper, $file_abstract);
     $query->fetch();
     $query->close();
-    
-    // Identify which file to display
-    $file_name = ($type === "research") ? $file_research_paper : $file_abstract;
 
-    if (!$file_name) {
-        die("File not found.");
+    // Identify which file to display
+    if ($type === "research") {
+        $file_path = "uploadedFile/$department/$program/research/$file_research_paper";
+    } elseif ($type === "abstract") {
+        $file_path = "uploadedFile/$department/$program/abstract/$file_abstract";
+    } else {
+        die("Invalid file type.");
     }
 
-    // Construct full file path
-    $file_path = "uploadedFile/$department/$program/uploads/$file_name";
+    if (!$file_path || !file_exists($file_path)) {
+        die("File not found.");
+    }
 
     // Fetch comments along with the admin's name
     $sql = "SELECT ac.title, ac.abstract, ac.others, u.username AS reviewer_name

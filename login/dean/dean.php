@@ -106,44 +106,61 @@ $total_pages = max(ceil($total_rows / $limit), 1);
         <!--filter START-->
         <section class="filterSection mt-3">
             <div class="row px-3">
-                <!-- Search (1st Row in Mobile, 2nd Row right in wider screen) -->
-                <div class="col-5 order-1 col-md-2 offset-md-4 order-md-5 mt-1 p-0 d-flex align-items-center justify-content-md-end search">
+                <!-- Search -->
+                <div class="col-12 col-md-2 order-6 offset-md-2 mt-1 p-0 d-flex align-items-center justify-content-md-end align-self-end mb-1 search">
                     <i class="fa fa-search p-1"></i>
                     <input type="text" class="input-search fa-search" id="searchInput" placeholder="Search..." onkeyup="filterTable()">
                 </div>
 
-                <!-- Select label (2nd Row in Mobile, 1st Row in Wider screen) -->
-                <div class="col-12 p-0 mt-2 order-2 order-md-1">
+                <!-- Filter Title -->
+                <div class="col-12 p-1 mt-2 order-1">
                     <span class="txt-filter">Select filter based on:</span>
                 </div>
 
-                <!-- Selections 2nd Row -->
-                <div class="col-3 order-3 col-md-2 mt-1 p-0 order-md-2 g-2">
+                <!-- Filter Group -->
+                <div class="col-6 col-md-2 mt-1 p-1 order-2">
+                    <span class="txt-program">Program</span>
                     <select class="form-select custom-select" id="programFilter" onchange="filterTable()">
-                        <option value="" disabled selected>Program:</option>
+                        <option value="">Select Program:</option>
                         <?php foreach ($allowedPrograms as $program): ?>
                             <option value="<?= htmlspecialchars($program) ?>"><?= htmlspecialchars($program) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
-                <div class="col-3 order-4 col-md-2 mt-1 p-0 order-md-3">
+                <div class="col-6 col-md-2 mt-1 p-1 order-3">
+                    <span class="txt-researchProgress">Research Progress</span>
                     <select class="form-select custom-select" id="notificationFilter" onchange="filterTable()">
-                        <option value="" disabled selected>Research Progress:</option>
+                        <option value="">Select Research Progress:</option>
                         <option value="For Revision">For Revision</option>
-                        <option value="Scheduled for Research Proposal Presentation">Scheduled for Research Proposal Presentation</option>
-                        <option value="Scheduled for Final Presentation">Scheduled for Final Presentation</option>
+                        <option value="Scheduled for Research Proposal Presentation">Proposal Presentation</option>
+                        <option value="Scheduled for Final Presentation">Final Presentation</option>
                         <option value="Please see comments">Please see comments</option>
                     </select>
                 </div>
 
-                <div class="col-3 order-5 col-md-2 mt-1 p-0 order-md-4">
+                <div class="col-6 col-md-2 mt-1 p-1 order-4">
+                    <span class="txt-researchStatus">Research Status</span>
                     <select class="form-select custom-select" id="statusFilter" onchange="filterTable()">
-                        <option value="" disabled selected>Research Status:</option>
+                        <option value="">Select Research Status:</option>
                         <option value="Presented">Presented</option>
                         <option value="Implemented">Implemented</option>
                     </select>
-                </div>           
+                </div>
+
+                <div class="col-6 col-md-2 mt-1 p-1 order-5">
+                    <span class="txt-year">Year</span>
+                    <select class="form-select custom-select" id="yearFilter" onchange="filterTable()">
+                        <option value="">Select Year:</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </div>
             </div>
         </section>
         <!--filter END-->
@@ -240,25 +257,28 @@ $total_pages = max(ceil($total_rows / $limit), 1);
     function filterTable() {
         const searchInput = document.getElementById('searchInput').value.toLowerCase();
         const programFilter = document.getElementById('programFilter').value;
+        const yearFilter = document.getElementById('yearFilter').value;
         const notificationFilter = document.getElementById('notificationFilter').value;
         const statusFilter = document.getElementById('statusFilter').value;
         const table = document.getElementById('researchTable');
         const trs = table.getElementsByTagName('tr');
 
-        for (let i = 1; i < trs.length; i++) { // Start at 1 to skip table header
+        for (let i = 1; i < trs.length; i++) { // Skip header row
             const tds = trs[i].getElementsByTagName('td');
             let textContent = trs[i].textContent.toLowerCase();
 
-            // Apply search input filter (searches across the row)
-            let searchMatch = textContent.includes(searchInput);
+            // Assuming Date of Submission is in tds[0]
+            let dateText = tds[0].textContent.trim();
+            let extractedYear = dateText.match(/\b\d{4}\b/); // Extract 4-digit year
+            extractedYear = extractedYear ? extractedYear[0] : "";
 
-            // Apply dropdown filters (exact match)
+            let searchMatch = textContent.includes(searchInput);
             let programMatch = !programFilter || tds[1].textContent.trim() === programFilter;
+            let yearMatch = !yearFilter || extractedYear === yearFilter;
             let notificationMatch = !notificationFilter || tds[9].textContent.trim() === notificationFilter;
             let statusMatch = !statusFilter || tds[12].textContent.trim() === statusFilter;
 
-            // Show row if all filters match
-            if (searchMatch && programMatch && notificationMatch && statusMatch) {
+            if (searchMatch && programMatch && yearMatch && notificationMatch && statusMatch) {
                 trs[i].style.display = '';
             } else {
                 trs[i].style.display = 'none';

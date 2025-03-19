@@ -33,26 +33,26 @@
         }
         $user_query->close();
 
-        // Handle file upload
-        $target_dir = "uploadedFile/$department/$program/uploads/";
-        if (!is_dir($target_dir)) {
-            mkdir($target_dir, 0777, true);
-        }
-
-        function uploadFile($file, $target_dir, $prefix) {
+        // File upload function
+        function uploadFile($file, $target_dir) {
             if (!isset($_FILES[$file]) || $_FILES[$file]["error"] !== 0) {
                 return null;
             }
 
             $file_ext = strtolower(pathinfo($_FILES[$file]["name"], PATHINFO_EXTENSION));
-
             if ($file_ext !== "pdf") {
                 echo "<script>alert('The system only accepts PDF Files!'); window.location.href='general_User.php';</script>";
                 exit();
             }
 
-            $file_name = $prefix . "_" . basename($_FILES[$file]["name"]);
+            // Save without prefix and ensure replacement
+            $file_name = basename($_FILES[$file]["name"]);
             $target_file = $target_dir . $file_name;
+
+            // Delete existing file if it already exists (for replacement)
+            if (file_exists($target_file)) {
+                unlink($target_file);  // Removes the old file
+            }
 
             if (!move_uploaded_file($_FILES[$file]["tmp_name"], $target_file)) {
                 echo "<script>alert('File upload failed. Try again.'); window.location.href='general_User.php';</script>";
@@ -62,11 +62,16 @@
             return $file_name;
         }
 
-        // Handle Research Paper Upload
-        $file_research_paper = uploadFile("file_research_paper", $target_dir, "Research");
-        
-        // Handle Abstract Upload
-        $file_abstract = uploadFile("file_abstract", $target_dir, "Abstract");
+        // Define target directories by document type
+        $target_dir_research = "uploadedFile/$department/$program/research/";
+        $target_dir_abstract = "uploadedFile/$department/$program/abstract/";
+
+        if (!is_dir($target_dir_research)) mkdir($target_dir_research, 0777, true);
+        if (!is_dir($target_dir_abstract)) mkdir($target_dir_abstract, 0777, true);
+
+        // Handle uploads
+        $file_research_paper = uploadFile("file_research_paper", $target_dir_research);
+        $file_abstract = uploadFile("file_abstract", $target_dir_abstract);
 
         if ($file_research_paper && $file_abstract) {
             $stmt = $conn->prepare("INSERT INTO tbl_fileUpload 

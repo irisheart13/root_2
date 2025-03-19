@@ -71,8 +71,11 @@ body{
     color: #80B918;
 }
 .search {
+    height: 40px;
     width: 100%; 
     border: #80B918 1px solid;
+
+    order: 6;
 }
 .input-search {
     width: 100%;  
@@ -105,6 +108,15 @@ body{
 }
 option{
     font-size: 14px;
+}
+.txt-program, .txt-researchProgress, .txt-researchStatus, .txt-year{
+    font-size: 12px !important;
+    font-style: italic !important;
+    color: #80B918;
+}
+
+.custom-order-6 {
+    order: 6;
 }
 /* Filter Design END */
 
