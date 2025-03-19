@@ -127,7 +127,7 @@
                                     <input type="hidden" name="id" value="<?= $row['id'] ?>">
                                     <td>
                                         <select name="notification" class="custom-select">
-                                            <option class="custom-option" value="" disabled selected>Select</option>
+                                            <option class="custom-option" value="">Select</option>
                                             <option class="custom-option" value="For Revision" <?= ($row['notification'] == 'For Revision') ? 'selected' : '' ?>>For Revision</option>
                                             <option class="custom-option" value="Scheduled for Research Proposal Presentation" <?= ($row['notification'] == 'Scheduled for Research Proposal Presentation') ? 'selected' : '' ?>>Scheduled for Research Proposal Presentation</option>
                                             <option class="custom-option" value="Scheduled for Final Research Presentation" <?= ($row['notification'] == 'Scheduled for Final Research Presentation') ? 'selected' : '' ?>>Scheduled for Final Research Presentation</option>
@@ -142,7 +142,7 @@
                                     </td>
                                     <td>
                                         <select name="research_status" class="custom-select">
-                                            <option class="custom-option" value="" disabled selected>Select</option>
+                                            <option class="custom-option" value="">Select</option>
                                             <option class="custom-option" value="Presented" <?= ($row['research_status'] == 'Presented') ? 'selected' : '' ?>>Presented</option>
                                             <option class="custom-option" value="Implemented" <?= ($row['research_status'] == 'Implemented') ? 'selected' : '' ?>>Implemented</option>
                                         </select>

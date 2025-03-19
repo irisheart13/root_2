@@ -50,198 +50,78 @@
     <link href="/root_2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="/root_2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <link href="review_coor.css" rel="stylesheet">
 </head>
-<style>
-    /* Poppins Regular */
-    @font-face {
-        font-family: 'Poppins';
-        src: url('/root_2/Poppins/Poppins-Regular.ttf') format('truetype');
-        font-weight: 400;
-        font-style: normal;
-    }
-
-    /* Poppins Bold */
-    @font-face {
-        font-family: 'Poppins';
-        src: url('/root_2/Poppins/Poppins-Bold.ttf') format('truetype');
-        font-weight: 700;
-        font-style: normal;
-    }
-
-    /* Poppins Italic */
-    @font-face {
-        font-family: 'Poppins';
-        src: url('/root_2/Poppins/Poppins-Italic.ttf') format('truetype');
-        font-weight: 400;
-        font-style: italic;
-    }
-
-    /* Poppins Light */
-    @font-face {
-        font-family: 'Poppins';
-        src: url('/root_2/Poppins/Poppins-Light.ttf') format('truetype');
-        font-weight: 300;
-        font-style: normal;
-    }
-
-    body{
-        margin: 0;
-        padding: 0;
-        overflow-y: visible;
-        overflow-x:hidden;
-
-        font-family: 'Poppins';
-
-        background-color: #dee2e6;
-    }
-
-    .container-fluid{
-        margin:0;
-        padding:0;
-    }
-
-    /*Nav Bar Design START*/
-    .nav-bar{
-        position: absolute;
-        top: 0;
-        left: 0;
-
-        width: 100vw;
-        height: 40px;
-
-        margin: 0;
-        padding: 0;
-
-        background-color: #212529;
-    }
-   .logout{
-        display: flex;
-        justify-content: flex-end;
-        padding: 8px;
-    }
-    .btn-logout{
-        margin-right: 20px;
-
-        border: none;
-        border-radius: 10px;
-
-        width: 100px;
-        height: 25px;
-        padding-bottom: 0px;
-
-        background-color: #f5f5f5;
-    }
-    .user-display{
-        display: flex;
-        align-items: center;
-        padding-top: 8px;
-        padding-left: 30px;
-        padding-bottom: 0px;
-        font-size: 18px;
-        color: white;
-    }
-    /*Nav Bar Design END*/
-
-    /*Viewer START*/
-    .viewer{
-        margin-top: 40px;
-        padding: 0;
-        width: 100vw;
-    }
-    /*Viewer END*/
-
-    /*PDF Viewer START*/
-    #pdfViewer{
-        height:100vh;
-    }
-    /*PDF Viewer END*/
-
-    /*Comment Section Design START*/
-    .com_sec{
-        background-color: #283618;
-        color: white;
-        height: 100vh;
-        padding: 10px;
-    }
-    label{
-        padding-top: 15px;
-    }
-    .custom-textarea{
-        padding: 10px;
-        width: 100%;
-        height: 130px;
-    }
-    .btn-submit{
-        margin-right: 20px;
-
-        border-width: 1px;
-        border-radius: 10px;
-
-        width: 100px;
-        height: 30px;
-        color: white;
-        background-color: #212529;
-
-        font-size: 18px;
-    }
-
-    /*Comment Section Design END*/
-    
-</style>
 <body>
-    <div class="container-fluid">
+    <div class="container-fluid main">
         <!--Nav Section START-->
-        <div class="row nav-bar">
-            <div class="col-6 user-display">
-                <p>Hello, <?php echo $user_name; ?>!</p>
+        <section class="navBarSection">
+            <div class="row">
+                <div class="col-2 col-md-1 p-0 d-flex align-items-center justify-content-center justify-content-md-end logo">
+                    <img src="/Root_2/img/plmun_logo.png" alt="logo" class="img-logo">
+                </div>
+                <div class="col-4 col-md-2 welcome p-0 ps-md-2 d-flex align-items-center">
+                    <span class="txt-welcome">WELCOME</span>
+                </div>
+                <div class="col-6 col-md-3 offset-md-6 d-flex align-items-center justify-content-end p-0">
+                    <span class="txt-email align-items-center wrap">plmuncomm@plmun.edu.ph</span>
+                </div>
             </div>
-            <div class="col-6 logout">
-                <form action="/root_2/logout.php" method="post">
-                    <button type="submit" class="btn-logout">Logout</button>
-                </form>
-            </div>
-        </div>
+        </section>
         <!--Nav Section END-->
 
-        <!--Content Section START-->
-        <div class="viewer">
-            <form method="POST" action="submitComment_coor.php">
-                <div class=" container-fluid row">
-                    <div class="col-12 col-md-9">
-                        <!-- PDF VIEWER USING IFRAME -->
-                         <iframe id="pdfViewer" src="<?= htmlspecialchars($file_path) ?>" width="100%" style="border: none;"></iframe>
-                    </div>
-                    <div class="col-12 col-md-3">
+        <!--Pdf Comment Section START-->
+        <section class="pdfCommentSection">
+            <div class=row>
+                <div class="col-12 col-md-9 p-0">
+                    <!-- PDF VIEWER USING IFRAME -->
+                    <iframe id="pdfViewer" src="<?= htmlspecialchars($file_path) ?>" width="100%" height="600px" style="border: none;"></iframe>
+                </div>
+                <div class="col-12 col-md-3 p-0 commentSection">
+                    <form method="POST" action="submitComment_coor.php">
                         <input type="hidden" name="id" value="<?= htmlspecialchars($_GET['id'] ?? '') ?>">
                         <input type="hidden" name="type" value="<?= htmlspecialchars($_GET['type'] ?? 'research') ?>">
-                        <div class="row com_sec">
-                            <div class="col-12">
-                                <label>Title:</label>
+                            <div class="row com_sec m-0 ">
+                                <div class="col-12">
+                                    <label class="txt-comment">COMMENT HERE YOUR INSIGHTS ABOUT THE</label>
+                                </div>
+                                <div class="col-12">
+                                    <label>Title:</label>
+                                </div>
+                                <div class="col-12">
+                                    <textarea name="title" placeholder="Type here..." class="form-control custom-textarea"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label>Abstract:</label>
+                                </div>
+                                <div class="col-12">
+                                    <textarea name="abstract" placeholder="Type here..." class="form-control custom-textarea"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label>Others:</label>
+                                </div>
+                                <div class="col-12">
+                                    <textarea name="others" placeholder="Type here..." class="form-control custom-textarea"></textarea>
+                                </div>
+                                <div class="col-12 pt-3">
+                                    <button type="submit" name="submit" class="btn-submit">SUBMIT</button>
+                                </div>
                             </div>
-                            <div class="col-12">
-                                <textarea name="title" placeholder="Type here..." class="form-control custom-textarea"></textarea>
-                            </div>
-                            <div class="col-12">
-                                <label>Abstract:</label>
-                            </div>
-                            <div class="col-12">
-                                <textarea name="abstract" placeholder="Type here..." class="form-control custom-textarea"></textarea>
-                            </div>
-                            <div class="col-12">
-                                <label>Others:</label>
-                            </div>
-                            <div class="col-12">
-                                <textarea name="others" placeholder="Type here..." class="form-control custom-textarea"></textarea>
-                            </div>
-                            <div class="col-12 pt-3">
-                                <button type="submit" name="submit" class="btn-submit">SUBMIT</button>
-                            </div>
-                        </div>
-                    </div>
+                    </form>
                 </div>
-            </form>
-        </div>
-        <!--Content Section END-->
+            </div>
+        </section>
+        <!--Pdf Comment Section END-->
+
+        <!-- Recent Comment Section START -->
+        <section class="recentCommentSection">
+            <div class="row">
+                <div class="col-11 mx-auto">
+
+                </div>
+            </div>
+        </section>
+        <!-- Recent Comment Section END -->
     </div>
 
 </body>
