@@ -20,7 +20,7 @@
 
     // Fetch user data with pagination (Filter by department & program)
     $sql = "SELECT id, 
-                DATE_FORMAT(date_of_submission, '%b %d, %Y %h:%i %p') AS formatted_date_of_submission, 
+                DATE_FORMAT(date_of_submission, '%b %d, %Y %h:%i %p') AS formatted_date_of_submission, username,
                 title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, notification, 
                 DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, 
                 DATE_FORMAT(sched_final, '%b %d, %Y') AS formatted_sched_final, 
@@ -92,6 +92,7 @@
                     <thead>
                         <tr>
                             <th class="wrap">Date of Submission</th>
+                            <th>Username</th>
                             <th>Title</th>
                             <th>Main Author</th>
                             <th>Co-Author 1</th>
@@ -112,6 +113,7 @@
                         <?php while ($row = $result->fetch_assoc()): ?>
                             <tr>
                                 <td class="wrap"><?= htmlspecialchars($row['formatted_date_of_submission']) ?></td>
+                                <td class="wrap"><?= htmlspecialchars($row['username']) ?></td>
                                 <td class="wrap"><?= htmlspecialchars($row['title']) ?></td>
                                 <td class="wrap"><?= htmlspecialchars($row['main_author']) ?></td>
                                 <td class="wrap"><?= htmlspecialchars($row['co_author_1']) ?></td>

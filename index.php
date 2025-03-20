@@ -72,7 +72,7 @@
 
                         <!-- Username -->
                         <div class="mb-3">
-                            <label for="username" class="form-label">Institutional Email</label>
+                            <label for="username" class="form-label">Username (Institutional Email)</label>
                             <input type="email" class="form-control" id="username" name="username" 
                                 pattern="^[a-zA-Z0-9._%+-]+@plmun.edu.ph$" required 
                                 placeholder="example@plmun.edu.ph">

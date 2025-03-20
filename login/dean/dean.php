@@ -36,7 +36,7 @@ $placeholders = implode(',', array_fill(0, count($allowedPrograms), '?'));
 
 // Fetch data query
 $sql = "SELECT id, 
-            DATE_FORMAT(date_of_submission, '%b %d, %Y %h:%i %p') AS formatted_date_of_submission, 
+            DATE_FORMAT(date_of_submission, '%b %d, %Y %h:%i %p') AS formatted_date_of_submission, username,
             program, title, main_author, co_author_1, co_author_2, others, 
             file_research_paper, file_abstract, notification, 
             DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, 
@@ -173,6 +173,7 @@ $total_pages = max(ceil($total_rows / $limit), 1);
                         <thead>
                             <tr>
                                 <th class="wrap">Date of Submission</th>
+                                <th>Username</th>
                                 <th>Program</th>
                                 <th>Title</th>
                                 <th class="wrap">Main Author</th>
@@ -194,6 +195,7 @@ $total_pages = max(ceil($total_rows / $limit), 1);
                                 while ($row = $result->fetch_assoc()) {
                                     echo "<tr>";
                                     echo "<td class='wrap'>" . htmlspecialchars($row['formatted_date_of_submission']) . "</td>";
+                                    echo "<td class='wrap'>" . htmlspecialchars($row['username']) . "</td>";
                                     echo "<td class='wrap'>" . htmlspecialchars($row['program']) . "</td>";
                                     echo "<td class='wrap'>" . htmlspecialchars($row['title']) . "</td>";
                                     echo "<td class='wrap'>" . htmlspecialchars($row['main_author']) . "</td>";

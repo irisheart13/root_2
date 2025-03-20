@@ -8,17 +8,18 @@
     }
 
     $user_name = htmlspecialchars($_SESSION['username']);
-    $department = $_SESSION['department']; 
-    $program = $_SESSION['program'];
+    $department = htmlspecialchars($_SESSION['department']);
+    $program = htmlspecialchars($_SESSION['program']);
 
+    // Validate GET parameters
     if (!isset($_GET['id']) || !isset($_GET['type'])) {
         die("Invalid request.");
     }
-    
+
     $id = intval($_GET['id']);
-    $type = $_GET['type']; // either "research" or "abstract"
-    
-    // Fetch file path from database
+    $type = $_GET['type']; // "research" or "abstract"
+
+    // Fetch file names from database
     $query = $conn->prepare("SELECT file_research_paper, file_abstract FROM tbl_fileUpload WHERE id = ?");
     $query->bind_param("i", $id);
     $query->execute();
@@ -26,17 +27,28 @@
     $query->bind_result($file_research_paper, $file_abstract);
     $query->fetch();
     $query->close();
-    
-    // Identify which file to display
-    $file_name = ($type === "research") ? $file_research_paper : $file_abstract;
 
-    if (!$file_name) {
+    $base_dir = "../general_user/uploadedFile/$department/$program";
+
+    if ($type === "research") {
+        $file_path = "$base_dir/research/$file_research_paper";
+    } elseif ($type === "abstract") {
+        $file_path = "$base_dir/abstract/$file_abstract";
+    } else {
+        die("Invalid file type.");
+    }
+
+    // Debug the path
+    // echo "File Path: " . $file_path . "<br>";
+
+    // Check if file exists
+    if (!$file_path || !file_exists($file_path)) {
         die("File not found.");
     }
 
-    // Construct full file path
-    $file_path = "/root_2/login/general_user/uploadedFile/$department/$program/uploads/" . $file_name;
+    $conn->close();
 ?>
+
 
 
 <!DOCTYPE html>

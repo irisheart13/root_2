@@ -12,15 +12,15 @@
     $department = htmlspecialchars($_SESSION['department']);
     $program = htmlspecialchars($_SESSION['program']);
 
-
+    // Validate GET parameters
     if (!isset($_GET['id']) || !isset($_GET['type'])) {
         die("Invalid request.");
     }
-    
-    $id = intval($_GET['id']);
-    $type = $_GET['type']; // either "research" or "abstract"
 
-    // Fetch file path from database
+    $id = intval($_GET['id']);
+    $type = $_GET['type']; // "research" or "abstract"
+
+    // Fetch file names from database
     $query = $conn->prepare("SELECT file_research_paper, file_abstract FROM tbl_fileUpload WHERE id = ?");
     $query->bind_param("i", $id);
     $query->execute();
@@ -29,20 +29,23 @@
     $query->fetch();
     $query->close();
 
-    // Identify which file to display
+    // Determine the correct file path based on type
+    $base_dir = "uploadedFile/$department/$program";
+
     if ($type === "research") {
-        $file_path = "uploadedFile/$department/$program/research/$file_research_paper";
+        $file_path = "$base_dir/research/$file_research_paper";
     } elseif ($type === "abstract") {
-        $file_path = "uploadedFile/$department/$program/abstract/$file_abstract";
+        $file_path = "$base_dir/abstract/$file_abstract";
     } else {
         die("Invalid file type.");
     }
 
+    // Check if file exists
     if (!$file_path || !file_exists($file_path)) {
         die("File not found.");
     }
 
-    // Fetch comments along with the admin's name
+    // Fetch comments with reviewer info
     $sql = "SELECT ac.title, ac.abstract, ac.others, u.username AS reviewer_name
             FROM admin_comments ac
             LEFT JOIN tbl_user u ON ac.coor_id = u.id
@@ -58,6 +61,7 @@
 ?>
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,217 +73,80 @@
     <link href="/root_2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="/root_2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <link href="review_user.css" rel="stylesheet">
 </head>
-<style>
-    /* Poppins Regular */
-    @font-face {
-        font-family: 'Poppins';
-        src: url('/root_2/Poppins/Poppins-Regular.ttf') format('truetype');
-        font-weight: 400;
-        font-style: normal;
-    }
-
-    /* Poppins Bold */
-    @font-face {
-        font-family: 'Poppins';
-        src: url('/root_2/Poppins/Poppins-Bold.ttf') format('truetype');
-        font-weight: 700;
-        font-style: normal;
-    }
-
-    /* Poppins Italic */
-    @font-face {
-        font-family: 'Poppins';
-        src: url('/root_2/Poppins/Poppins-Italic.ttf') format('truetype');
-        font-weight: 400;
-        font-style: italic;
-    }
-
-    /* Poppins Light */
-    @font-face {
-        font-family: 'Poppins';
-        src: url('/root_2/Poppins/Poppins-Light.ttf') format('truetype');
-        font-weight: 300;
-        font-style: normal;
-    }
-
-    body{
-        margin: 0;
-        padding: 0;
-        overflow-y: visible;
-        overflow-x:hidden;
-
-        font-family: 'Poppins';
-
-        background-color: #dee2e6;
-    }
-
-    .container-fluid{
-        margin:0;
-        padding:0;
-    }
-
-    /*Nav Bar Design START*/
-    .nav-bar{
-        position: absolute;
-        top: 0;
-        left: 0;
-
-        width: 100vw;
-        height: 40px;
-
-        margin: 0;
-        padding: 0;
-
-        background-color: #212529;
-    }
-   .logout{
-        display: flex;
-        justify-content: flex-end;
-        padding: 8px;
-    }
-    .btn-logout{
-        margin-right: 20px;
-
-        border: none;
-        border-radius: 10px;
-
-        width: 100px;
-        height: 25px;
-        padding-bottom: 0px;
-
-        background-color: #f5f5f5;
-    }
-    .user-display{
-        display: flex;
-        align-items: center;
-        padding-top: 8px;
-        padding-left: 30px;
-        padding-bottom: 0px;
-        font-size: 18px;
-        color: white;
-    }
-    /*Nav Bar Design END*/
-
-    /*Viewer START*/
-    .viewer{
-        margin-top: 40px;
-        padding: 0;
-        width: 100vw;
-        height: 100vh;
-    }
-    /*Viewer END*/
-
-    /*PDF Viewer START*/
-    #pdfViewer{
-        height:100vh;
-    }
-    /*PDF Viewer END*/
-
-    /*Comment Section Design START*/
-    .com_sec{
-        background-color: #283618;
-        color: white;
-        height: 100%;
-        padding: 10px;
-    }
-    label{
-        padding-top: 15px;
-        font-weight: 700;
-    }
-    .custom-name{
-        font-style: italic;
-        color: yellow;
-        font-size: 13px;
-    }
-    .custom-textarea{
-        padding: 10px;
-        width: 100%;
-        height: auto;
-    }
-    .btn-submit{
-        margin-right: 20px;
-
-        border-width: 1px;
-        border-radius: 10px;
-
-        width: 100px;
-        height: 30px;
-        color: white;
-        background-color: #212529;
-
-        font-size: 18px;
-    }
-
-    /*Comment Section Design END*/
-    
-</style>
 <body>
-    <div class="container-fluid">
+   <div class="container-fluid main">
         <!--Nav Section START-->
-        <div class="row nav-bar">
-            <div class="col-6 user-display">
-                <p>Hello, <?php echo $user_name; ?>!</p>
+        <section class="navBarSection">
+            <div class="row">
+                <div class="col-2 col-md-1 p-0 d-flex align-items-center justify-content-center justify-content-md-end logo">
+                    <img src="/Root_2/img/plmun_logo.png" alt="logo" class="img-logo">
+                </div>
+                <div class="col-4 col-md-2 welcome p-0 ps-md-2 d-flex align-items-center">
+                    <span class="txt-welcome">WELCOME</span>
+                </div>
+                <div class="col-6 col-md-3 offset-md-6 d-flex align-items-center justify-content-end p-0">
+                    <span class="txt-email align-items-center wrap">plmuncomm@plmun.edu.ph</span>
+                </div>
             </div>
-            <div class="col-6 logout">
-                <form action="logout.php" method="post">
-                    <button type="submit" class="btn-logout">Logout</button>
-                </form>
-            </div>
-        </div>
+        </section>
         <!--Nav Section END-->
 
-        <!--Content Section START-->
-        <div class="viewer">
-            <div class=" container-fluid row">
-                <div class="col-12 col-md-9">
+        <!--Pdf Comment Section START-->
+        <section class="pdfCommentSection">
+            <div class=row>
+                <div class="col-12 col-md-9 p-0">
                     <!-- PDF VIEWER USING IFRAME -->
-                     <iframe id="pdfViewer" src="<?= htmlspecialchars($file_path) ?>" width="100%" style="border: none;"></iframe>
+                    <iframe id="pdfViewer" src="<?= htmlspecialchars($file_path) ?>" width="100%" height="600px" style="border: none;"></iframe>
                 </div>
-                <div class="col-12 col-md-3">
-                    <div class="row com_sec">
+                <div class="col-12 col-md-3 p-0 commentSection">
+                    <div class="row com_sec m-0 ">
                         <div class="col-12">
-                            <row>
-                                <div col="col-12">
-                                    <?= htmlspecialchars($comments['reviewer_name'] ?? 'Unknown Admin') ?>
-                                </div>
-                                <div col="col-12">
-                                    <p class="custom-name">Reviewed by:</p>
-                                </div>
-                                <div col="col-12">
-                                    <label>Title:</label>
-                                </div>
-                                <div col="col-12">
-                                    <?= htmlspecialchars($comments['title'] ?? 'No comment yet.') ?>
-                                </div>
-                            </row>
+                            <span class="txt-coorName d-flex align-items-end"><?= htmlspecialchars($comments['reviewer_name'] ?? 'Unknown Admin') ?></span>
                         </div>
                         <div class="col-12">
-                            <row>
-                                <div col="col-12">
-                                    <label>Abstract:</label>
-                                </div>
-                                <div col="col-12">
-                                    <?= htmlspecialchars($comments['abstract'] ?? 'No comment yet.') ?>
-                                </div>
-                            </row>
+                            <span class="lbl-coorName d-flex align-items-start">Reviewed by:</span>
                         </div>
                         <div class="col-12">
-                            <row>
-                                <div col="col-12">
-                                    <label>Others:</label>
-                                </div>
-                                <div col="col-12">
-                                    <?= htmlspecialchars($comments['others'] ?? 'No comment yet.') ?>
-                                </div>
-                            </row>
+                            <label>Title:</label>
+                        </div>
+                        <div class="col-12">
+                            <div col="col-12 custom-textarea">
+                                <?= htmlspecialchars($comments['title'] ?? 'No comment yet.') ?>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label>Abstract:</label>
+                        </div>
+                        <div class="col-12">
+                            <div col="col-12 custom-textarea">
+                                <?= htmlspecialchars($comments['abstract'] ?? 'No comment yet.') ?>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label>Others:</label>
+                        </div>
+                        <div class="col-12">
+                            <div col="col-12 custom-textarea">
+                                <?= htmlspecialchars($comments['others'] ?? 'No comment yet.') ?>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!--Content Section END-->
-    </div>
+        </section>
+        <!--Pdf Comment Section END-->
 
+        <!-- Recent Comment Section START -->
+        <section class="recentCommentSection">
+            <div class="row">
+                <div class="col-11 mx-auto">
+
+                </div>
+            </div>
+        </section>
+        <!-- Recent Comment Section END -->
+    </div> 
 </body>
 </html>
