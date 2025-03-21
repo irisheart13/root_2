@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 20, 2025 at 09:15 AM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Generation Time: Mar 21, 2025 at 05:14 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -33,15 +33,19 @@ CREATE TABLE `admin_comments` (
   `abstract` text DEFAULT NULL,
   `others` text DEFAULT NULL,
   `file_id` int(11) DEFAULT NULL,
-  `coor_id` int(11) DEFAULT NULL
+  `coor_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `file_type` enum('research','abstract') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `admin_comments`
 --
 
-INSERT INTO `admin_comments` (`id`, `title`, `abstract`, `others`, `file_id`, `coor_id`) VALUES
-(1, 'try comment on id 1', 's,mdnf,mdsfSDF', 'ADFGDFGA', 1, 2);
+INSERT INTO `admin_comments` (`id`, `title`, `abstract`, `others`, `file_id`, `coor_id`, `created_at`, `file_type`) VALUES
+(1, 'Lorem ipsum dolor sit amet. Est laboriosam fugiat aut illo fugit a iusto repellat in animi voluptatem in distinctio quisquam. Eum beatae quasi aut officia sint sed Quis repellendus qui consequuntur consequatur qui laborum consequatur ex repudiandae neque ut repellendus quam.', 'Lorem ipsum dolor sit amet. Est laboriosam fugiat aut illo fugit a iusto repellat in animi voluptatem in distinctio quisquam. Eum beatae quasi aut officia sint sed Quis repellendus qui consequuntur consequatur qui laborum consequatur ex repudiandae neque ut repellendus quam.', 'Lorem ipsum dolor sit amet. Est laboriosam fugiat aut illo fugit a iusto repellat in animi voluptatem in distinctio quisquam. Eum beatae quasi aut officia sint sed Quis repellendus qui consequuntur consequatur qui laborum consequatur ex repudiandae neque ut repellendus quam.', 1, 2, '2025-03-21 15:04:41', 'research'),
+(2, 'Lorem ipsum dolor sit amet. Ut quasi enim sit molestias enim est quod magni. ', 'Lorem ipsum dolor sit amet. Ut quasi enim sit molestias enim est quod magni. ', 'Lorem ipsum dolor sit amet. Ut quasi enim sit molestias enim est quod magni. ', 1, 2, '2025-03-21 15:07:23', 'research'),
+(3, 'Lorem ipsum dolor sit amet. 33 mollitia quasi aut voluptatum magnam sed quaerat fugit. Qui quaerat consequuntur quo commodi facere 33 obcaecati laboriosam.', 'Lorem ipsum dolor sit amet. 33 mollitia quasi aut voluptatum magnam sed quaerat fugit. Qui quaerat consequuntur quo commodi facere 33 obcaecati laboriosam.', 'Lorem ipsum dolor sit amet. 33 mollitia quasi aut voluptatum magnam sed quaerat fugit. Qui quaerat consequuntur quo commodi facere 33 obcaecati laboriosam.', 2, 3, '2025-03-21 15:41:26', 'research');
 
 -- --------------------------------------------------------
 
@@ -75,7 +79,8 @@ CREATE TABLE `tbl_fileupload` (
 --
 
 INSERT INTO `tbl_fileupload` (`id`, `date_of_submission`, `username`, `department`, `program`, `remarks`, `title`, `main_author`, `co_author_1`, `co_author_2`, `others`, `file_research_paper`, `file_abstract`, `notification`, `sched_proposal`, `sched_final`, `research_status`, `edit_access`) VALUES
-(1, '2025-03-20 06:35:06', 'pradoirisheart_bscs@plmun.edu.ph', 'CITCS', 'BSCS', NULL, 'First Try - new db -try edit (main author) - reupload file', 'Choi Yoon Jeonghan ', '', '', '', '[Journal] Prado, Iris Heart A.pdf', '[Week_6_Journal] Prado, Iris Heart A.pdf', NULL, NULL, NULL, NULL, 1);
+(1, '2025-03-20 06:35:06', 'pradoirisheart_bscs@plmun.edu.ph', 'CITCS', 'BSCS', NULL, 'First Try - new db -try edit (main author) - reupload file', 'Choi Yoon Jeonghan ', '', '', '', '[Journal] Prado, Iris Heart A.pdf', '[Week_6_Journal] Prado, Iris Heart A.pdf', NULL, NULL, NULL, NULL, 1),
+(2, '2025-03-21 15:40:28', 'ilogonalexis_bsit@plmun.edu.ph', 'CITCS', 'BSIT', NULL, 'New User Try', 'Ilogon Alexis', '', '', '', 'CITCS-EXAM-SCHEDULE-MIDTERM-2ND-SEM-2024-2025.pdf', 'Resume_Prado Iris Heart A.pdf', NULL, NULL, NULL, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -107,7 +112,8 @@ INSERT INTO `tbl_user` (`id`, `last_name`, `first_name`, `middle_initial`, `user
 (5, 'Garcia', 'Mark', 'V', 'prog_head_BSCS', 0, 'CITCS', 'BSCS', 'prog_head'),
 (6, 'Fernandez', 'Luisa', 'C', 'prog_head_BSIT', 0, 'CITCS', 'BSIT', 'prog_head'),
 (7, 'Mendoza', 'Roberto', 'S', 'dean_CITCS', 0, 'CITCS', '', 'dean'),
-(8, 'Prado', 'Iris Heart', 'A', 'pradoirisheart_bscs@plmun.edu.ph', 1234, 'CITCS', 'BSCS', 'user');
+(8, 'Prado', 'Iris Heart', 'A', 'pradoirisheart_bscs@plmun.edu.ph', 1234, 'CITCS', 'BSCS', 'user'),
+(9, 'Ilogon', 'Alexis', '', 'ilogonalexis_bsit@plmun.edu.ph', 1234, 'CITCS', 'BSIT', 'user');
 
 --
 -- Indexes for dumped tables
@@ -141,19 +147,19 @@ ALTER TABLE `tbl_user`
 -- AUTO_INCREMENT for table `admin_comments`
 --
 ALTER TABLE `admin_comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `tbl_fileupload`
 --
 ALTER TABLE `tbl_fileupload`
-  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tbl_user`
 --
 ALTER TABLE `tbl_user`
-  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Constraints for dumped tables
