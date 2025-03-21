@@ -8,6 +8,7 @@
         exit();
     }
     $user_name = htmlspecialchars($_SESSION['username']);
+    $first_name = htmlspecialchars($_SESSION['first_name']);
 
     // Get admin's department and program from session
     $admin_department = $_SESSION['department']; 
@@ -66,7 +67,7 @@
                 <!-- Hello -->
                 <div class="col-4 order-1 col-md-2 order-md-1 hello p-0 ps-md-2 d-flex align-items-center">
                     <span class="txt-hello">Hello,</span>
-                    <span class="txt-username"><?php echo $user_name; ?>!</span>
+                    <span class="txt-username"><?php echo $first_name; ?>!</span>
                 </div>
 
                 <!-- Logout (Comes second on mobile, last on desktop) -->

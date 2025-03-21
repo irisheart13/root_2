@@ -9,6 +9,7 @@
     }
 
     $user_name = htmlspecialchars($_SESSION['username']);
+    $first_name = htmlspecialchars($_SESSION['first_name']);
     // Get program head's department and program from session
     $progHead_department = $_SESSION['department']; 
     $progHead_program = $_SESSION['program'];
@@ -69,7 +70,7 @@
             <div class="row p-1">
                 <div class="col-6 col-md-6 p-0 ps-md-2 d-flex align-items-center hello">
                     <span class="txt-hello">Hello,</span>
-                    <span class="txt-username"><?php echo $user_name; ?>!</span>
+                    <span class="txt-username"><?php echo $first_name; ?>!</span>
                 </div>
 
                 <div class="col-6 col-md-6  d-flex align-items-center justify-content-end">

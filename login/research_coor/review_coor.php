@@ -38,16 +38,27 @@
         die("Invalid file type.");
     }
 
-    // Debug the path
-    // echo "File Path: " . $file_path . "<br>";
-
     // Check if file exists
     if (!$file_path || !file_exists($file_path)) {
         die("File not found.");
     }
 
+    // Fetch comments only for the specific file and type
+    $sql = "SELECT title, abstract, others, created_at FROM admin_comments WHERE file_id = ? AND file_type = ? ORDER BY created_at DESC";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("is", $id, $type); // Ensure type is passed as a string
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $comments = [];
+    while ($row = $result->fetch_assoc()) {
+        $comments[] = $row;
+    }
+
+    $stmt->close();
     $conn->close();
 ?>
+
 
 
 
@@ -128,8 +139,42 @@
         <!-- Recent Comment Section START -->
         <section class="recentCommentSection">
             <div class="row">
-                <div class="col-11 mx-auto">
+                <div class="col-9 mx-auto p-0">
+                    <span class="txt-recentComment">RECENT COMMENTS</span>
+                        <div class="row g-2">
+                        <?php if (!empty($comments)) : ?>
+                            <?php foreach ($comments as $comment) : ?>
+                                <div class="col-12 comBox">
+                                    <div class="row">
+                                        <!-- Date Posted -->
+                                        <div class="col-12 txt-datePosted">
+                                            <span>Posted on <?php echo date("F j, Y, g:i A", strtotime($comment['created_at'])); ?></span>
+                                        </div>
 
+                                        <!-- Title -->
+                                        <div class="col-12 txt-title mt-4"><span>TITLE</span></div>
+                                        <div class="col-12 txt-commentBox mt-2">
+                                            <?php echo htmlspecialchars($comment['title']); ?>
+                                        </div>
+
+                                        <!-- Abstract -->
+                                        <div class="col-12 txt-title mt-4"><span>ABSTRACT</span></div>
+                                        <div class="col-12 txt-commentBox mt-2">
+                                            <?php echo htmlspecialchars($comment['abstract']); ?>
+                                        </div>
+
+                                        <!-- Others -->
+                                        <div class="col-12 txt-title mt-4"><span>OTHERS</span></div>
+                                        <div class="col-12 txt-commentBox mt-2">
+                                            <?php echo htmlspecialchars($comment['others']); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else : ?>
+                            <div class="col-12 txt-commentBox mt-2">No comments available.</div>
+                        <?php endif; ?>
+                        </div>
                 </div>
             </div>
         </section>

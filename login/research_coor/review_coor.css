@@ -30,7 +30,7 @@
     font-style: normal;
 }
 :root {
-    --bs-body-font-size: 16px;
+    --bs-body-font-size: 14px;
     --bs-body-bg: #00272B !important;
     --bs-body-font-family: 'Poppins', sans-serif !important;
 }
@@ -72,7 +72,6 @@ body{
     color: #80B918;
 }
 .txt-email{
-    font-size: 14px;
     color: #80B918;
 }
 /*Nav Bar Design END*/
@@ -101,6 +100,7 @@ body{
         padding: 10px;
         width: 100%;
         height: 110px;
+        font-size: 14px;
     }
     .btn-submit{
         margin-right: 20px;
@@ -117,6 +117,35 @@ body{
     }
 
 /*pdfComment Section END*/
+
+/* recentComment Section START */
+.recentCommentSection{
+    margin-top: 25px;
+    padding-bottom: 10px;
+}
+.txt-recentComment{
+    font-size: 25px;
+    font-weight: 700;
+}
+.comBox{
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    color: black;
+    height: 100%;
+}
+.txt-title{
+    font-size: 20px;
+    font-weight: 700;
+    color: #80B918;
+}
+.txt-datePosted{
+    font-size: 12px;
+    font-style: italic;
+    color: black;
+}
+
+/* recentComment Section END */
 
 @media (max-width: 576px)  {
     body{

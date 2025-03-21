@@ -12,13 +12,20 @@
     $department = htmlspecialchars($_SESSION['department']);
     $program = htmlspecialchars($_SESSION['program']);
 
+    $role = $_GET['role'] ?? 'general_user';
+    $id = $_GET['id'] ?? null;
+    $type = $_GET['type'] ?? 'research'; // Default to 'research'
+
+    // Validate type early
+    $allowed_types = ['research', 'abstract'];
+    if (!in_array($type, $allowed_types)) {
+        die("Invalid file type."); 
+    }
+
     // Validate GET parameters
     if (!isset($_GET['id']) || !isset($_GET['type'])) {
         die("Invalid request.");
     }
-
-    $id = intval($_GET['id']);
-    $type = $_GET['type']; // "research" or "abstract"
 
     // Fetch file names from database
     $query = $conn->prepare("SELECT file_research_paper, file_abstract FROM tbl_fileUpload WHERE id = ?");
@@ -45,16 +52,18 @@
         die("File not found.");
     }
 
-    // Fetch comments with reviewer info
-    $sql = "SELECT ac.title, ac.abstract, ac.others, u.username AS reviewer_name
-            FROM admin_comments ac
-            LEFT JOIN tbl_user u ON ac.coor_id = u.id
-            WHERE ac.file_id = ?";
+   // Fetch comments with reviewer info and filter by file type
+    $sql = "SELECT ac.title, ac.abstract, ac.others, u.username AS reviewer_name, ac.created_at
+    FROM admin_comments ac
+    LEFT JOIN tbl_user u ON ac.coor_id = u.id
+    WHERE ac.file_id = ? AND ac.file_type = ?
+    ORDER BY ac.created_at DESC";
+
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
+    $stmt->bind_param("is", $id, $type); // "i" for file_id, "s" for file_type (research/abstract)
     $stmt->execute();
     $result = $stmt->get_result();
-    $comments = $result->fetch_assoc();
+    $comments = $result->fetch_all(MYSQLI_ASSOC); // Fetch all results as an array
 
     $stmt->close();
     $conn->close();
@@ -86,8 +95,8 @@
                 <div class="col-4 col-md-2 welcome p-0 ps-md-2 d-flex align-items-center">
                     <span class="txt-welcome">WELCOME</span>
                 </div>
-                <div class="col-6 col-md-3 offset-md-6 d-flex align-items-center justify-content-end p-0">
-                    <span class="txt-email align-items-center wrap">plmuncomm@plmun.edu.ph</span>
+                <div class="col-6 col-md-3 offset-md-6 d-flex align-items-center justify-content-end ">
+                    <span class="txt-email align-items-center">plmuncomm@plmun.edu.ph</span>
                 </div>
             </div>
         </section>
@@ -95,58 +104,58 @@
 
         <!--Pdf Comment Section START-->
         <section class="pdfCommentSection">
-            <div class=row>
-                <div class="col-12 col-md-9 p-0">
-                    <!-- PDF VIEWER USING IFRAME -->
-                    <iframe id="pdfViewer" src="<?= htmlspecialchars($file_path) ?>" width="100%" height="600px" style="border: none;"></iframe>
-                </div>
-                <div class="col-12 col-md-3 p-0 commentSection">
-                    <div class="row com_sec m-0 ">
-                        <div class="col-12">
-                            <span class="txt-coorName d-flex align-items-end"><?= htmlspecialchars($comments['reviewer_name'] ?? 'Unknown Admin') ?></span>
-                        </div>
-                        <div class="col-12">
-                            <span class="lbl-coorName d-flex align-items-start">Reviewed by:</span>
-                        </div>
-                        <div class="col-12">
-                            <label>Title:</label>
-                        </div>
-                        <div class="col-12">
-                            <div col="col-12 custom-textarea">
-                                <?= htmlspecialchars($comments['title'] ?? 'No comment yet.') ?>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <label>Abstract:</label>
-                        </div>
-                        <div class="col-12">
-                            <div col="col-12 custom-textarea">
-                                <?= htmlspecialchars($comments['abstract'] ?? 'No comment yet.') ?>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <label>Others:</label>
-                        </div>
-                        <div class="col-12">
-                            <div col="col-12 custom-textarea">
-                                <?= htmlspecialchars($comments['others'] ?? 'No comment yet.') ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <iframe id="pdfViewer" src="<?= htmlspecialchars($file_path) ?>" width="100%" height="600px" style="border: none;"></iframe>
         </section>
         <!--Pdf Comment Section END-->
 
-        <!-- Recent Comment Section START -->
-        <section class="recentCommentSection">
-            <div class="row">
-                <div class="col-11 mx-auto">
+    <!-- Recent Comment Section START -->
+    <section class="recentCommentSection">
+        <div class="row">
+            <div class="col-9 mx-auto p-0">
+                <span class="txt-recentComment">RECENT COMMENTS</span>
+                <div class="row g-2">
+                    <?php if (!empty($comments)) : ?>
+                        <?php foreach ($comments as $comment) : ?>
+                            <div class="col-12 comBox">
+                                <div class="row">
+                                    <!-- Reviewer Name -->
+                                    <div class="col-12 txt-commentBox mt-2">
+                                        <strong>Reviewer:</strong> <?php echo htmlspecialchars($comment['reviewer_name']); ?>
+                                    </div>
 
+                                    <!-- Date Posted -->
+                                    <div class="col-12 txt-datePosted">
+                                        <span>Posted on <?php echo date("F j, Y, g:i A", strtotime($comment['created_at'])); ?></span>
+                                    </div>
+
+                                    <!-- Title -->
+                                    <div class="col-12 txt-title mt-4"><span>TITLE</span></div>
+                                    <div class="col-12 txt-commentBox mt-2">
+                                        <?php echo htmlspecialchars($comment['title']); ?>
+                                    </div>
+
+                                    <!-- Abstract -->
+                                    <div class="col-12 txt-title mt-4"><span>ABSTRACT</span></div>
+                                    <div class="col-12 txt-commentBox mt-2">
+                                        <?php echo htmlspecialchars($comment['abstract']); ?>
+                                    </div>
+
+                                    <!-- Others -->
+                                    <div class="col-12 txt-title mt-4"><span>OTHERS</span></div>
+                                    <div class="col-12 txt-commentBox mt-2">
+                                        <?php echo htmlspecialchars($comment['others']); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <div class="col-12 txt-commentBox mt-2">No comments available.</div>
+                    <?php endif; ?>
                 </div>
             </div>
-        </section>
-        <!-- Recent Comment Section END -->
+        </div>
+    </section>
+    <!-- Recent Comment Section END -->
     </div> 
 </body>
 </html>

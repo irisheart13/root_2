@@ -9,6 +9,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dean') {
 }
 
 $user_name = htmlspecialchars($_SESSION['username']);
+$first_name = htmlspecialchars($_SESSION['first_name']);
 $user_department = $_SESSION['department'];
 
 // Department to program mapping
@@ -45,13 +46,13 @@ $sql = "SELECT id,
         FROM tbl_fileUpload
         WHERE department = ? AND program IN ($placeholders)
         ORDER BY date_of_submission DESC
-        LIMIT ? OFFSET ?";
+        LIMIT $limit OFFSET $offset";
 
 $stmt = $conn->prepare($sql);
 if (!$stmt) die("SQL Error: " . $conn->error);
 
-$types = "s" . str_repeat("s", count($allowedPrograms)) . "ii";
-$params = array_merge([$user_department], $allowedPrograms, [$limit, $offset]);
+$types = "s" . str_repeat("s", count($allowedPrograms));
+$params = array_merge([$user_department], $allowedPrograms);
 $stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -91,7 +92,7 @@ $total_pages = max(ceil($total_rows / $limit), 1);
             <div class="row p-1">
                 <div class="col-6 col-md-6 p-0 ps-md-2 d-flex align-items-center hello">
                     <span class="txt-hello">Hello,</span>
-                    <span class="txt-username"><?php echo $user_name; ?>!</span>
+                    <span class="txt-username"><?php echo $first_name; ?>!</span>
                 </div>
 
                 <div class="col-6 col-md-6  d-flex align-items-center justify-content-end">
