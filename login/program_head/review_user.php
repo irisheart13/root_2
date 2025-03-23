@@ -3,8 +3,8 @@ session_start();
 include '../../conn.php';
 
 // Check if user is logged in as dean
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'dean') {
-    header("Location: dean.php");
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'prog_head') {
+    header("Location: program_head.php");
     exit();
 }
 
@@ -49,6 +49,8 @@ if ($type === "research") {
     $file_path = "$base_dir/abstract/$file_abstract";
 }
 
+// var_dump($file_path);
+// die();
 
 // Check if file exists
 if (!file_exists($file_path)) {
@@ -71,8 +73,6 @@ $comments = $result->fetch_all(MYSQLI_ASSOC); // Fetch all results as an array
 $stmt->close();
 $conn->close();
 ?>
-
-
 
 
 <!DOCTYPE html>

@@ -1,0 +1,123 @@
+/* Poppins Regular */
+@font-face {
+    font-family: 'Poppins';
+    src: url('/Root_1/Poppins/Poppins-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* Poppins Bold */
+@font-face {
+    font-family: 'Poppins';
+    src: url('/Root_1/Poppins/Poppins-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* Poppins Italic */
+@font-face {
+    font-family: 'Poppins';
+    src: url('/Root_1/Poppins/Poppins-Italic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+}
+
+/* Poppins Light */
+@font-face {
+    font-family: 'Poppins';
+    src: url('/Root_1/Poppins/Poppins-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+:root {
+    --bs-body-font-size: 14px;
+    --bs-body-bg: #00272B !important;
+    --bs-body-font-family: 'Poppins', sans-serif !important;
+}
+
+body{
+    padding: 20px 25px 20px 15px;
+    width: 100vw;
+    height:100vh;
+
+    font-size: var(--bs-body-font-size);
+    font-family: var(--bs-body-font-family) !important;
+    color: white;
+
+    background-color: var(--bs-body-bg) !important;
+    overflow-y: visible;
+    overflow-x: hidden;
+
+    /* border: 1px solid red; */
+}
+
+.main{
+    margin:0;
+    /* border: 1px solid white; */
+}
+/*Nav Bar Design START*/
+.navBarSection{
+    padding:0;
+}
+.row{
+    padding:0;
+}
+.img-logo{
+    width:40px;
+    height:40px;
+}
+.txt-welcome{
+    font-weight: 700;
+    font-size:20px;
+    color: #80B918;
+}
+.txt-email{
+    font-size: 14px;
+    color: #80B918;
+}
+/*Nav Bar Design END*/
+
+/*pdfComment Section START*/
+.pdfCommentSection{
+    margin-top: 20px;
+}  
+/*pdfComment Section END*/
+
+/* recentComment Section START */
+.recentCommentSection{
+    margin-top: 25px;
+    padding-bottom: 10px;
+}
+.txt-recentComment{
+    font-size: 25px;
+    font-weight: 700;
+}
+.comBox{
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    color: black;
+    height: 100%;
+}
+.txt-title{
+    font-size: 20px;
+    font-weight: 700;
+    color: #80B918;
+}
+.txt-datePosted{
+    font-size: 12px;
+    font-style: italic;
+    color: black;
+}
+
+/* recentComment Section END */
+
+@media (max-width: 576px)  {
+    body{
+        padding: 20px;
+    }
+    .txt-email{
+        font-size: 11px;
+    }
+
+}
