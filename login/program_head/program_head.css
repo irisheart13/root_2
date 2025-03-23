@@ -71,8 +71,11 @@ body{
     color: #80B918;
 }
 .search {
+    height: 40px;
     width: 100%; 
     border: #80B918 1px solid;
+
+    order: 6;
 }
 .input-search {
     width: 100%;  
@@ -106,11 +109,18 @@ body{
 option{
     font-size: 14px;
 }
+.txt-program, .txt-researchProgress, .txt-researchStatus, .txt-year{
+    font-size: 12px !important;
+    font-style: italic !important;
+    color: #80B918;
+}
+
 /* Filter Design END */
 
 /* Table Design START */
 .tableSection{
     margin-top: 25px;
+    font-size: 14px !important;
 }
     .table-responsive, 
     .custom-table {
@@ -128,10 +138,11 @@ option{
         color: white;
     }
     .custom-table th{
+
         background-color: #80B918 !important;
     }
     .custom-table th, .custom-table td {
-        width: 150px; 
+        width: 110px; 
         text-overflow: ellipsis; 
         overflow: hidden;
     }

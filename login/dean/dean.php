@@ -256,30 +256,29 @@ $total_pages = max(ceil($total_rows / $limit), 1);
         <!--Table END-->
     </div>
 <script>
-    //Filter Function
+    // Filter Function
     function filterTable() {
         const searchInput = document.getElementById('searchInput').value.toLowerCase();
-        const programFilter = document.getElementById('programFilter').value;
+        const programFilter = document.getElementById('programFilter').value.toLowerCase();
         const yearFilter = document.getElementById('yearFilter').value;
-        const notificationFilter = document.getElementById('notificationFilter').value;
-        const statusFilter = document.getElementById('statusFilter').value;
+        const notificationFilter = document.getElementById('notificationFilter').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
         const table = document.getElementById('researchTable');
         const trs = table.getElementsByTagName('tr');
 
-        for (let i = 1; i < trs.length; i++) { // Skip header row
+        for (let i = 1; i < trs.length; i++) {
             const tds = trs[i].getElementsByTagName('td');
             let textContent = trs[i].textContent.toLowerCase();
 
-            // Assuming Date of Submission is in tds[0]
             let dateText = tds[0].textContent.trim();
-            let extractedYear = dateText.match(/\b\d{4}\b/); // Extract 4-digit year
-            extractedYear = extractedYear ? extractedYear[0] : "";
+            let extractedYear = dateText.match(/\b(20\d{2})\b/);
+            extractedYear = extractedYear ? extractedYear[1] : "";
 
             let searchMatch = textContent.includes(searchInput);
-            let programMatch = !programFilter || tds[1].textContent.trim() === programFilter;
+            let programMatch = !programFilter || tds[2].textContent.trim().toLowerCase() === programFilter;
             let yearMatch = !yearFilter || extractedYear === yearFilter;
-            let notificationMatch = !notificationFilter || tds[9].textContent.trim() === notificationFilter;
-            let statusMatch = !statusFilter || tds[12].textContent.trim() === statusFilter;
+            let notificationMatch = !notificationFilter || tds[10].textContent.trim().toLowerCase() === notificationFilter;
+            let statusMatch = !statusFilter || tds[13].textContent.trim().toLowerCase() === statusFilter;
 
             if (searchMatch && programMatch && yearMatch && notificationMatch && statusMatch) {
                 trs[i].style.display = '';
@@ -288,6 +287,9 @@ $total_pages = max(ceil($total_rows / $limit), 1);
             }
         }
     }
+
+
+
 </script>
 
 </body>

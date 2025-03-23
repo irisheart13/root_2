@@ -10,7 +10,6 @@
 
     $user_name = htmlspecialchars($_SESSION['username']);
     $first_name = htmlspecialchars($_SESSION['first_name']);
-    // Get program head's department and program from session
     $progHead_department = $_SESSION['department']; 
     $progHead_program = $_SESSION['program'];
 
@@ -19,10 +18,11 @@
     $page = isset($_GET['page']) && (int)$_GET['page'] > 0 ? (int)$_GET['page'] : 1;
     $offset = ($page - 1) * $limit;
 
-    // Fetch user data with pagination (Filter by department & program)
+    // Fetch user data with pagination
     $sql = "SELECT id, 
-                DATE_FORMAT(date_of_submission, '%b %d, %Y %h:%i %p') AS formatted_date_of_submission, username,
-                title, main_author, co_author_1, co_author_2, others, file_research_paper, file_abstract, notification, 
+                DATE_FORMAT(date_of_submission, '%b %d, %Y %h:%i %p') AS formatted_date_of_submission, 
+                username, title, main_author, co_author_1, co_author_2, others, 
+                file_research_paper, file_abstract, notification, 
                 DATE_FORMAT(sched_proposal, '%b %d, %Y') AS formatted_sched_proposal, 
                 DATE_FORMAT(sched_final, '%b %d, %Y') AS formatted_sched_final, 
                 research_status, edit_access
@@ -38,16 +38,14 @@
 
     // Total records for pagination
     $total_query = $conn->prepare("SELECT COUNT(*) FROM tbl_fileUpload WHERE department = ? AND program = ?");
-    $total_query->bind_param("ss", $progHead_department, $progHead_program,);
+    $total_query->bind_param("ss", $progHead_department, $progHead_program);
     $total_query->execute();
     $total_query->bind_result($total_rows);
     $total_query->fetch();
     $total_query->close();
     
     $total_pages = max(ceil($total_rows / $limit), 1);
-
     $conn->close();
-
 ?>
 
 
@@ -82,38 +80,54 @@
         </section>
         <!--Nav Section END-->
 
-        <!--filter START-->
-        <section class="filterSection mt-3">
+         <!--filter START-->
+         <section class="filterSection mt-3">
             <div class="row px-3">
-                <!-- Search (1st Row in Mobile, 2nd Row right in wider screen) -->
-                <div class="col-5 order-1 col-md-2 offset-md-6 order-md-5 mt-1 p-0 d-flex align-items-center justify-content-md-end search">
+                <!-- Search -->
+                <div class="col-12 col-md-2 order-5 offset-md-4 mt-1 p-0 d-flex align-items-center justify-content-md-end align-self-end mb-1 search">
                     <i class="fa fa-search p-1"></i>
                     <input type="text" class="input-search fa-search" id="searchInput" placeholder="Search..." onkeyup="filterTable()">
                 </div>
 
-                <!-- Select label (2nd Row in Mobile, 1st Row in Wider screen) -->
-                <div class="col-12 p-0 mt-2 order-2 order-md-1">
+                <!-- Filter Title -->
+                <div class="col-12 p-1 mt-2 order-1">
                     <span class="txt-filter">Select filter based on:</span>
                 </div>
 
-                <!-- Selections 2nd Row -->
-                <div class="col-3 order-3 col-md-2 mt-1 p-0 order-md-2">
+                <!-- Filter Group -->
+                <div class="col-6 col-md-2 mt-1 p-1 order-2">
+                    <span class="txt-researchProgress">Research Progress</span>
                     <select class="form-select custom-select" id="notificationFilter" onchange="filterTable()">
-                        <option value="" disabled selected>Research Progress:</option>
+                        <option value="">Select Research Progress:</option>
                         <option value="For Revision">For Revision</option>
-                        <option value="Scheduled for Research Proposal Presentation">Scheduled for Research Proposal Presentation</option>
-                        <option value="Scheduled for Final Presentation">Scheduled for Final Presentation</option>
+                        <option value="Scheduled for Research Proposal Presentation">Proposal Presentation</option>
+                        <option value="Scheduled for Final Presentation">Final Presentation</option>
                         <option value="Please see comments">Please see comments</option>
                     </select>
                 </div>
 
-                <div class="col-3 order-4 col-md-2 mt-1 p-0 order-md-3">
+                <div class="col-6 col-md-2 mt-1 p-1 order-3">
+                    <span class="txt-researchStatus">Research Status</span>
                     <select class="form-select custom-select" id="statusFilter" onchange="filterTable()">
-                        <option value="" disabled selected>Research Status:</option>
+                        <option value="">Select Research Status:</option>
                         <option value="Presented">Presented</option>
                         <option value="Implemented">Implemented</option>
                     </select>
-                </div>           
+                </div>
+
+                <div class="col-6 col-md-2 mt-1 p-1 order-4">
+                    <span class="txt-year">Year</span>
+                    <select class="form-select custom-select" id="yearFilter" onchange="filterTable()">
+                        <option value="">Select Year:</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </div>
             </div>
         </section>
         <!--filter END-->
@@ -205,11 +219,12 @@
         <!-- Table END -->
     </div>
 <script>
-    //Filter Function
+    // Filter Function
     function filterTable() {
         const searchInput = document.getElementById('searchInput').value.toLowerCase();
         const notificationFilter = document.getElementById('notificationFilter').value;
         const statusFilter = document.getElementById('statusFilter').value;
+        const yearFilter = document.getElementById('yearFilter').value;
         const table = document.getElementById('researchTable');
         const trs = table.getElementsByTagName('tr');
 
@@ -217,14 +232,19 @@
             const tds = trs[i].getElementsByTagName('td');
             let textContent = trs[i].textContent.toLowerCase();
 
+            // Extract year from the "Date of Submission" column
+            let dateSubmission = tds[0].textContent.trim(); // The first column is "Date of Submission"
+            let rowYear = dateSubmission.split(', ')[1]?.slice(0, 4); // Extract year from formatted date
+
             // Apply search input filter (searches across the row)
             let searchMatch = textContent.includes(searchInput);
 
             // Apply dropdown filters (exact match)
-            let notificationMatch = !notificationFilter || tds[8].textContent.trim() === notificationFilter;
-            let statusMatch = !statusFilter || tds[11].textContent.trim() === statusFilter;
+            let notificationMatch = !notificationFilter || tds[9].textContent.trim() === notificationFilter;
+            let statusMatch = !statusFilter || tds[12].textContent.trim() === statusFilter;
+            let yearMatch = !yearFilter || rowYear === yearFilter; // Check if extracted year matches filter
 
-            if (searchMatch && notificationMatch && statusMatch) {
+            if (searchMatch && notificationMatch && statusMatch && yearMatch) {
                 trs[i].style.display = '';
             } else {
                 trs[i].style.display = 'none';
