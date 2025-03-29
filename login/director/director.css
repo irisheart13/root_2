@@ -1,0 +1,179 @@
+/* Poppins Regular */
+@font-face {
+    font-family: 'Poppins';
+    src: url('/Root_1/Poppins/Poppins-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* Poppins Bold */
+@font-face {
+    font-family: 'Poppins';
+    src: url('/Root_1/Poppins/Poppins-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* Poppins Italic */
+@font-face {
+    font-family: 'Poppins';
+    src: url('/Root_1/Poppins/Poppins-Italic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+}
+
+/* Poppins Light */
+@font-face {
+    font-family: 'Poppins';
+    src: url('/Root_1/Poppins/Poppins-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+body{
+    padding: 20px 25px 20px 15px;
+    width: 100vw;
+    height:100vh;
+
+    font-family: 'Poppins', sans-serif !important;
+    color: white !important;
+
+    background-color: #00272B !important;
+    overflow-y: visible;
+    overflow-x: hidden;
+    /* border: 1px solid red; */
+}
+
+.main{
+    padding:0;
+    margin:0;
+
+    /* border: 1px solid white; */
+}
+/*Nav Bar Design START*/
+.navBarSection{
+    padding:0px;
+}
+.row{
+    padding:0;
+}
+.hello{
+    font-size: 20px;
+}
+.txt-hello{
+    font-weight: 700;
+    color: #80B918;
+}
+.txt-username{
+    color: #80B918;
+}
+.txt-email{
+    font-size: 14px;
+    color: #80B918;
+}
+.search {
+    height: 35px;
+    width: 100%; 
+    border: #80B918 1px solid;
+
+    order: 6;
+}
+.input-search {
+    width: 100%;  
+    max-width: 100%; 
+    border: none;  
+    
+    outline: none; 
+    background-color: transparent;
+
+     color: white;
+}
+.btn-logout{
+    padding: 5;
+    border: none;
+    border-radius: 10px;
+
+    width: 100px;
+    height: 30px;
+    background-color: #f5f5f5;
+
+    font-weight: 700;
+    color: #80B918;
+}
+/*Nav Bar Design END*/
+
+/* Filter Design START */
+.custom-select{
+    font-size: 14px !important;
+    border-radius: 0px !important;
+}
+option{
+    font-size: 14px;
+}
+.txt-program, .txt-researchProgress, .txt-researchStatus, .txt-year{
+    font-size: 12px !important;
+    font-style: italic !important;
+    color: #80B918;
+}
+
+.custom-order-6 {
+    order: 6;
+}
+/* Filter Design END */
+
+/* Table Design START */
+.tableSection{
+    margin-top: 25px;
+    font-size: 14px !important;
+}
+    .table-responsive, 
+    .custom-table {
+        background-color: var(--bs-table-bg) !important;
+    }
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto; 
+        background-color: #f5f5f5;
+    }
+    .custom-table {
+        width: 100%;
+        table-layout: fixed; 
+        white-space: nowrap; 
+        color: white;
+    }
+    .custom-table th{
+
+        background-color: #80B918 !important;
+    }
+    .custom-table th, .custom-table td {
+        width: 110px; 
+        text-overflow: ellipsis; 
+        overflow: hidden;
+    }
+    .custom-table td.wrap, .custom-table th.wrap {
+        white-space: normal !important; /* Allows text wrapping */
+        word-wrap: break-word; 
+        overflow-wrap: break-word;
+    }
+    nav{
+        margin-top: 20px;
+    }
+/* Table Design END */
+
+@media (max-width: 576px)  {
+    body{
+        font-size: 14px;
+        padding: 20px;
+    }
+    .hello{
+        font-size: 14px;
+    }
+    .btn-logout{
+        height: 23px;
+        font-size: 14px;
+    }
+    .txt-email{
+        font-size: 9px;
+    }
+
+    /* Form Adjustment */
+}
